@@ -13,10 +13,7 @@ public class Canvas extends JPanel {
     public Canvas(int width, int height) {
         setPreferredSize(new Dimension(width, height));
         raster = new ColorBuffer(width, height);
-
         clear();
-
-
 
     }
 

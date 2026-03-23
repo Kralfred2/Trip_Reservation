@@ -10,7 +10,6 @@ public class Keyboard extends KeyAdapter {
     private final Map<Integer, Action> keyMap = new HashMap<>();
 
     public Keyboard() {
-        // Map physical keys to logical actions
         keyMap.put(KeyEvent.VK_W, Action.MOVE_FORWARD);
         keyMap.put(KeyEvent.VK_S, Action.MOVE_BACKWARD);
         keyMap.put(KeyEvent.VK_A, Action.MOVE_LEFT);

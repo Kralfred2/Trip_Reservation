@@ -7,7 +7,6 @@ public class Tube extends BaseObject {
     private final int[] indices;
 
     public Tube(float x, float y, float z, float r, float h, int sides) {
-        this.position = new Point3D(x, y, z);
         this.vertices = new Point3D[sides * 2];
         this.indices = new int[sides * 6];
 

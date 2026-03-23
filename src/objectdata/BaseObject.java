@@ -1,6 +1,12 @@
 package objectdata;
 
+import attributes.Attribute;
+import attributes.AttributeGroup;
+import attributes.RenderingAttributes;
+import attributes.TransformAttributes;
+import attributes.specific.GeometrySettings;
 import controller.Point3D;
+import math.Quaternion;
 import rasterdata.ColorBuffer;
 import rasterdata.DepthBuffer;
 import rasterops.LineRasterizer;
@@ -8,12 +14,33 @@ import rasterops.TriangleRasterizer;
 import view.Camera;
 
 import java.awt.*;
+import java.util.List;
+import java.util.ArrayList;
+
 
 public abstract class BaseObject implements Renderable {
-    protected Point3D position = new Point3D(0, 0, 0);
-    protected float rotX, rotY, rotZ;
-    protected float velX, velY, velZ;
 
+    protected float velX, velY, velZ;
+    protected GeometrySettings settings;
+    protected TransformAttributes transform;
+    protected List<AttributeGroup> featureGroups = new ArrayList<>();
+    protected RenderingAttributes renderData = new RenderingAttributes(this);
+
+
+    public BaseObject(GeometrySettings settings, Attribute<?>... attrs) {
+        this.settings = settings;
+
+        this.transform = new TransformAttributes(java.util.Arrays.asList(attrs));
+        this.featureGroups.add(transform);
+        this.featureGroups.add(new RenderingAttributes(this));
+    }
+
+    public BaseObject() {
+        this.transform = new TransformAttributes();
+        this.featureGroups.add(transform);
+
+        this.featureGroups.add(new RenderingAttributes(this));
+    }
     protected boolean selected = false;
     protected Color baseColor = Color.GRAY;
 
@@ -26,12 +53,7 @@ public abstract class BaseObject implements Renderable {
     @Override
     public boolean isSelected() { return selected; }
 
-    @Override
-    public void update(float deltaTime) {
-        rotX += velX * deltaTime;
-        rotY += velY * deltaTime;
-        rotZ += velZ * deltaTime;
-    }
+
 
     @Override
     public void setRotationSpeed(float vx, float vy, float vz) {
@@ -41,23 +63,29 @@ public abstract class BaseObject implements Renderable {
     }
 
     @Override
-    public void render(Camera camera, ColorBuffer cb, DepthBuffer db, int sw, int sh,
-                       boolean filled, boolean wireframe, boolean backFaceCulling) {
+    public void render(Camera camera, ColorBuffer cb, DepthBuffer db, int sw, int sh) {
 
+        boolean isFilled = (boolean) renderData.getAttributeValue("Filled");
+        boolean isWireframe = (boolean) renderData.getAttributeValue("Wireframe");
+        boolean useCulling = (boolean) renderData.getAttributeValue("Backface Culling");
 
         Point3D[] verts = getMeshVertices();
         int[] indices = getMeshIndices();
 
+        Quaternion rot = (Quaternion) transform.getAttributeValue("Rotation");
+        Point3D pos = (Point3D) transform.getAttributeValue("Position");
+        float scale = (float) transform.getAttributeValue("Scale");
 
         Point3D[] projected = new Point3D[verts.length];
+
         for (int i = 0; i < verts.length; i++) {
-            projected[i] = project(verts[i], sw, sh, camera);
+            projected[i] = projectOptimized(verts[i], sw, sh, camera, rot.toRotationMatrix(), pos, scale);
         }
 
 
         Color drawColor = selected ? Color.YELLOW : baseColor;
         if (showAxes || selected) {
-            drawLocalAxes(camera, cb, db, sw, sh);
+            drawLocalAxes(camera, cb, db, sw, sh, rot.toRotationMatrix(), pos,scale);
         }
 
         for (int i = 0; i < indices.length; i += 3) {
@@ -65,13 +93,14 @@ public abstract class BaseObject implements Renderable {
             Point3D v2 = projected[indices[i+1]];
             Point3D v3 = projected[indices[i+2]];
 
-            float nz = calculateNormalZ(v1, v2, v3);
+            if (v1 == null || v2 == null || v3 == null) continue;
 
-            if (!backFaceCulling || nz > 0) {
-                if (filled) {
+            float nz = calculateNormalZ(v1, v2, v3);
+            if (!useCulling || nz > 0) {
+                if (isFilled) {
                     TriangleRasterizer.fillTriangle(cb, db, v1, v2, v3, drawColor);
                 }
-                if (wireframe) {
+                if (isWireframe) {
                     Color lineColor = selected ? Color.WHITE : Color.LIGHT_GRAY;
                     LineRasterizer.rasterize(cb, db, v1, v2, lineColor);
                     LineRasterizer.rasterize(cb, db, v2, v3, lineColor);
@@ -82,19 +111,20 @@ public abstract class BaseObject implements Renderable {
     }
 
 
-    private void drawLocalAxes(Camera camera, ColorBuffer cb, DepthBuffer db, int sw, int sh) {
-        float size = 2.0f;
-        Point3D origin = project(new Point3D(0, 0, 0), sw, sh, camera);
+    private void drawLocalAxes(Camera camera, ColorBuffer cb, DepthBuffer db, int sw, int sh,
+                               float[] matrix, Point3D pos, float scale) {
+        float axisSize = 2.0f; // The length of the lines
 
+        Point3D origin = projectOptimized(new Point3D(0, 0, 0), sw, sh, camera, matrix, pos, scale);
+        Point3D xPos   = projectOptimized(new Point3D(axisSize, 0, 0), sw, sh, camera, matrix, pos, scale);
+        Point3D yPos   = projectOptimized(new Point3D(0, axisSize, 0), sw, sh, camera, matrix, pos, scale);
+        Point3D zPos   = projectOptimized(new Point3D(0, 0, axisSize), sw, sh, camera, matrix, pos, scale);
 
-        Point3D xPos = project(new Point3D(size, 0, 0), sw, sh, camera);
-        Point3D yPos = project(new Point3D(0, size, 0), sw, sh, camera);
-        Point3D zPos = project(new Point3D(0, 0, size), sw, sh, camera);
+        if (origin == null) return;
 
-
-        LineRasterizer.rasterize(cb, db, origin, xPos, Color.RED);
-        LineRasterizer.rasterize(cb, db, origin, yPos, Color.GREEN);
-        LineRasterizer.rasterize(cb, db, origin, zPos, Color.BLUE);
+        if (xPos != null) LineRasterizer.rasterize(cb, db, origin, xPos, Color.RED);
+        if (yPos != null) LineRasterizer.rasterize(cb, db, origin, yPos, Color.GREEN);
+        if (zPos != null) LineRasterizer.rasterize(cb, db, origin, zPos, Color.BLUE);
     }
 
     protected abstract Point3D[] getMeshVertices();
@@ -103,28 +133,68 @@ public abstract class BaseObject implements Renderable {
     private float calculateNormalZ(Point3D v1, Point3D v2, Point3D v3) {
         return (v2.x - v1.x) * (v3.y - v1.y) - (v2.y - v1.y) * (v3.x - v1.x);
     }
+    @Override
+    public void update(float deltaTime) {
+        if (velX != 0 || velY != 0 || velZ != 0) {
+            Quaternion current = (Quaternion) transform.getAttributeValue("Rotation");
+
+            if (current != null) {
+                Quaternion delta = Quaternion.fromAxisAngle(new Point3D(1, 0, 0), velX * deltaTime)
+                        .multiply(Quaternion.fromAxisAngle(new Point3D(0, 1, 0), velY * deltaTime))
+                        .multiply(Quaternion.fromAxisAngle(new Point3D(0, 0, 1), velZ * deltaTime));
+
+                transform.setAttribute("Rotation", delta.multiply(current));
+            }
+        }
+    }
+    protected Point3D projectOptimized(Point3D v, int sw, int sh, Camera cam,
+                                       float[] m, Point3D pos, float scale) {
+        // 1. Manual Matrix Multiplication (Rotation + Scaling)
+        float rx = (m[0] * v.x + m[1] * v.y + m[2] * v.z) * scale;
+        float ry = (m[3] * v.x + m[4] * v.y + m[5] * v.z) * scale;
+        float rz = (m[6] * v.x + m[7] * v.y + m[8] * v.z) * scale;
+
+        // 2. World Translation & Camera Offset
+        float tx = (rx + pos.x) - cam.x;
+        float ty = (ry + pos.y) - cam.y;
+        float tz = (rz + pos.z) - cam.z;
+
+        Point3D viewP = new Point3D(tx, ty, tz).rotateY(-cam.rotY).rotateX(-cam.rotX);
+
+        if (viewP.z < 0.1f) return null;
+
+        float fov = 400;
+        float invZ = 1.0f / viewP.z;
+        return new Point3D(
+                (viewP.x * fov) * invZ + (sw / 2f),
+                (viewP.y * fov) * invZ + (sh / 2f),
+                viewP.z
+        );
+    }
+    public List<AttributeGroup> getFeatureGroups() {
+        return featureGroups;
+    }
 
     protected Point3D project(Point3D vertex, int sw, int sh, Camera cam) {
-        // 1. Local Rotation
-        Point3D p = vertex.rotateX(rotX).rotateY(rotY).rotateZ(rotZ);
 
-        // 2. World Position
-        float worldX = p.x + position.x;
-        float worldY = p.y + position.y;
-        float worldZ = p.z + position.z;
+        Quaternion currentRot = (Quaternion) transform.getAttributeValue("Rotation");
+        Point3D currentPos = (Point3D) transform.getAttributeValue("Position");
 
-        // 3. View Transformation (Relative to Camera Position)
+        Point3D p = currentRot.rotate(vertex);
+
+        float worldX = p.x + currentPos.x;
+        float worldY = p.y + currentPos.y;
+        float worldZ = p.z + currentPos.z;
+
         float tx = worldX - cam.x;
         float ty = worldY - cam.y;
         float tz = worldZ - cam.z;
 
-        // 4. CAMERA ROTATION (The missing step!)
-        // Rotate the point around the camera using the INVERSE of camera angles
         Point3D viewP = new Point3D(tx, ty, tz)
                 .rotateY(-cam.rotY)
                 .rotateX(-cam.rotX);
 
-        // 5. Perspective Projection
+        if (viewP.z < 0.1f) return null;
         float fov = 400;
         float vZ = Math.max(viewP.z, 0.1f);
 

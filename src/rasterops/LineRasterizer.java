@@ -14,6 +14,9 @@ public class LineRasterizer {
     public static void rasterize(ColorBuffer cb, DepthBuffer db,
                                  Point3D p1, Point3D p2, Color color) {
 
+        if(p1 == null || p2 == null){
+            return;
+        }
 
         int x1 = (int) p1.x;
         int y1 = (int) p1.y;
@@ -36,7 +39,6 @@ public class LineRasterizer {
 
         while (true) {
             if (cb.isValidAddress(x1, y1)) {
-                // Depth Test: Only draw if current pixel is closer than what's stored
                 if (currentZ < db.getDepth(x1, y1)) {
                     db.setDepth(x1, y1, currentZ);
                     cb.setPixel(x1, y1, color);

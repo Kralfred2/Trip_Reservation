@@ -13,8 +13,9 @@ public interface Renderable {
     void setRotationSpeed(float vx, float vy, float vz);
     void setSelected(boolean selected);
     public boolean isSelected();
+
     /**
      * Draws the object to the buffers.
      */
-    void render(Camera camera, ColorBuffer cb, DepthBuffer db, int screenW, int screenH, boolean filled, boolean wireframe, boolean backFaceCulling);
+    void render(Camera camera, ColorBuffer cb, DepthBuffer db, int screenW, int screenH);
 }

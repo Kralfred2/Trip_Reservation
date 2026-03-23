@@ -1,14 +1,15 @@
 package objectdata;
 
-import controller.Point3D;
-import rasterdata.ColorBuffer;
-import rasterdata.DepthBuffer;
-import view.Camera;
-
+import attributes.Attribute;
+import attributes.specific.CubeAttributes;
 import controller.Point3D;
 
 public class Cube extends BaseObject {
-    private final Point3D[] vertices;
+
+    public Cube(CubeAttributes settings, Attribute<?>... attrs) {
+        super(settings, attrs);
+    }
+
     private final int[] indices = {
 
             0, 1, 2,  0, 2, 3,
@@ -24,20 +25,19 @@ public class Cube extends BaseObject {
             1, 2, 6,  1, 6, 5
     };
 
-    public Cube(float x, float y, float z) {
-        this.position = new Point3D(x, y, z);
-        this.vertices = new Point3D[]{
+
+    @Override
+    protected Point3D[] getMeshVertices() {
+        // Cast the settings to CubeSettings to get the size
+        float s = ((CubeAttributes)settings).size / 2f;
+        return new Point3D[]{
                 new Point3D(-1, -1, -1), new Point3D(1, -1, -1),
                 new Point3D(1, 1, -1), new Point3D(-1, 1, -1),
                 new Point3D(-1, -1, 1), new Point3D(1, -1, 1),
                 new Point3D(1, 1, 1), new Point3D(-1, 1, 1)
         };
-    }
+        }
 
-    @Override
-    protected Point3D[] getMeshVertices() {
-        return vertices;
-    }
 
     @Override
     protected int[] getMeshIndices() {

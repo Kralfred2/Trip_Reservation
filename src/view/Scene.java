@@ -13,6 +13,11 @@ public class Scene {
         this.camera = new Camera(0, 0, 0);
     }
 
+    public Renderable getPrimarySelected() {
+        List<Renderable> selected = getSelectedObjects();
+        return selected.isEmpty() ? null : selected.get(0);
+    }
+
     public void addObject(Renderable obj) {
         objects.add(obj);
     }
@@ -22,7 +27,6 @@ public class Scene {
     }
     public void selectObject(Renderable obj, boolean multiSelect) {
         if (!multiSelect) {
-            // Deselect everything else first
             for (Renderable r : selectedObjects) r.setSelected(false);
             selectedObjects.clear();
         }
