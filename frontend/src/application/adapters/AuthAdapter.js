@@ -1,4 +1,4 @@
-// application/adapters/AuthAdapter.js
+
 export class AuthAdapter {
   constructor(userRepository, tokenRepository) {
     this.userRepository = userRepository;
