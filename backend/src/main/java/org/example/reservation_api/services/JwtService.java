@@ -1,31 +1,34 @@
 package org.example.reservation_api.services;
 
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.SecretKey;
 import java.util.Date;
+
+import static javax.crypto.Cipher.SECRET_KEY;
 
 @Service
 public class JwtService {
 
-    private final String SECRET_KEY = "your_very_long_and_very_secret_key_here_must_be_32_chars";
+    // Pull this from your .env file for safety!
+    @Value("${JWT_SECRET}")
+    private String secretKey;
 
     public String generateToken(String username) {
         return Jwts.builder()
                 .subject(username)
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1 hour
-                .signWith(Keys.hmacShaKeyFor(SECRET_KEY.getBytes()))
+                .expiration(new Date(System.currentTimeMillis() + 86400000))
+                .signWith(getSigningKey())
                 .compact();
     }
 
-    public String extractUsername(String token) {
-        return Jwts.parser()
-                .verifyWith(Keys.hmacShaKeyFor(SECRET_KEY.getBytes()))
-                .build()
-                .parseSignedClaims(token)
-                .getPayload()
-                .getSubject();
+    private SecretKey getSigningKey() {
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 }

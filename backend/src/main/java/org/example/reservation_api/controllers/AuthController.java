@@ -1,56 +1,56 @@
 package org.example.reservation_api.controllers;
 
+import jakarta.validation.Valid;
 import org.example.reservation_api.DTO.LoginRequest;
-import org.example.reservation_api.entities.User;
-import org.example.reservation_api.repositories.UserRepository;
+import org.example.reservation_api.DTO.LoginResponse;
+import org.example.reservation_api.DTO.RegistrationRequest;
 import org.example.reservation_api.services.JwtService;
+import org.example.reservation_api.services.RegistrationService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 
-import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    private final UserRepository userRepository;
+
     private final JwtService jwtService;
-    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager bouncer;
+    private final RegistrationService registrationService;
 
-
-    public AuthController(UserRepository userRepository,
-                          JwtService jwtService,
-                          PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
+    public AuthController(AuthenticationManager bouncer, JwtService jwtService, RegistrationService registrationService) {
+        this.bouncer = bouncer;
         this.jwtService = jwtService;
-        this.passwordEncoder = passwordEncoder;
+        this.registrationService = registrationService;
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody LoginRequest request) {
-        Optional<User> userOptional = userRepository.findByUsername(request.getUsername());
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
+        try {
+            bouncer.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+            );
 
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
+            String token = jwtService.generateToken(request.getUsername());
+            return ResponseEntity.ok(new LoginResponse(true, token, "Welcome, have fun."));
 
-            if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-                return jwtService.generateToken(user.getUsername());
-            } else {
-                return "Invalid password!";
-            }
+        } catch (AuthenticationException e) {
+            return ResponseEntity.status(401)
+                    .body(new LoginResponse(false, null, "Get out."));
         }
-        return "User not found!";
     }
+
     @PostMapping("/register")
-    public String register(@RequestBody User user) {
-        String encodedPassword = passwordEncoder.encode(user.getPassword());
+    public ResponseEntity<String> register(@Valid @RequestBody RegistrationRequest request) {
+        // This triggers your Java Validation -> Service Logic -> DB Stored Procedure
+        UUID newUserId = registrationService.register(request);
 
-        user.setPassword(encodedPassword);
-
-        userRepository.save(user);
-
-        return "User registered successfully with hashed password!";
+        return ResponseEntity.ok("User registered successfully with ID: " + newUserId);
     }
-
 }

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="v1-tables" author="alfred">
+        <sqlFile path="db/changelog/migrations/001-tables.sql" endDelimiter=";"/>
+    </changeSet>
+
+    <changeSet id="v1-procedures" author="alfred" runOnChange="true">
+        <sqlFile path="db/changelog/migrations/002-procedures.sql" splitStatements="false"/>
+    </changeSet>
+
+    <changeSet id="v1-data" author="alfred" runOnChange="true">
+        <sqlFile path="db/changelog/migrations/004-data.sql" endDelimiter=";"/>
+    </changeSet>
+
+</databaseChangeLog>
