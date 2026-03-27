@@ -21,3 +21,9 @@ This gets run from the destination of the docker compose file, which is in the b
 it with the wrong path and there won't be any warning, except that the variables don't exist :( it's annoying, but I havn't found a way to set it up, and I'm getting frustrated. 
 
 
+Backend: 
+
+You can check the APIs with swagger
+
+
+
