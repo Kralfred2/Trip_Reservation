@@ -5,7 +5,18 @@ import java.util.UUID;
 public class Token extends BaseEntity{
 
     private UUID ownerId;
-    private boolean valid;
-    private String value;
+    private boolean blackListed;
+
+
+   public Token(
+           UUID uuid,
+           boolean val,
+   ){
+       this.ownerId = uuid;
+       this.blackListed = val;
+
+   }
+
+
 
 }

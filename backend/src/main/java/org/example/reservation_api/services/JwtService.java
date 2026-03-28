@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
 import java.security.Key;
 import java.util.Date;
+import java.util.UUID;
 
 import static javax.crypto.Cipher.SECRET_KEY;
 
@@ -26,7 +27,7 @@ public class JwtService {
     public String generateTimedToken(User user, int time) {
         return Jwts.builder()
                 .setSubject(user.getUsername())
-                .claim("role", user.getRole())
+                .claim("userId", user.getId())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 60 * time)) // 24 hours
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
@@ -35,14 +36,15 @@ public class JwtService {
 
     public Token isTokenValid(String token) {
         try {
-            Jwts.parser()
+            Claims claim =  Jwts.parser()
                     .verifyWith((SecretKey) getSignInKey())
                     .build()
-                    .parseSignedClaims(token);
+                    .parseSignedClaims(token)
+                    .getPayload();
 
+            Token returnVal = new Token(claim.get("userId", UUID.class), false);
 
-
-            return true; // Everything passed!
+            return returnVal; // Everything passed!
 
         } catch (SignatureException e) {
             // Someone tried to fake the token!
