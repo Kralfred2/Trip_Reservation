@@ -23,6 +23,7 @@ public class User extends BaseEntity {
 
 
 
+    public ROLE_ADMIN getRole(){ return ROLE_ADMIN; }
     public String getUsername() {
         return username;
     }

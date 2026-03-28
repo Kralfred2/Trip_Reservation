@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import org.example.reservation_api.DTO.LoginRequest;
 import org.example.reservation_api.DTO.LoginResponse;
 import org.example.reservation_api.DTO.RegistrationRequest;
+import org.example.reservation_api.security.MyCustomBouncer;
 import org.example.reservation_api.services.JwtService;
 import org.example.reservation_api.services.RegistrationService;
 import org.springframework.http.ResponseEntity;
@@ -21,10 +22,10 @@ public class AuthController {
 
 
     private final JwtService jwtService;
-    private final AuthenticationManager bouncer;
+    private final MyCustomBouncer bouncer;
     private final RegistrationService registrationService;
 
-    public AuthController(AuthenticationManager bouncer, JwtService jwtService, RegistrationService registrationService) {
+    public AuthController(MyCustomBouncer bouncer, JwtService jwtService, RegistrationService registrationService) {
         this.bouncer = bouncer;
         this.jwtService = jwtService;
         this.registrationService = registrationService;
@@ -37,7 +38,7 @@ public class AuthController {
                     new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
             );
 
-            String token = jwtService.generateToken(request.getUsername());
+            String token = jwtService.generateTimedToken(request.getUsername(),2);
             return ResponseEntity.ok(new LoginResponse(true, token, "Welcome, have fun."));
 
         } catch (AuthenticationException e) {

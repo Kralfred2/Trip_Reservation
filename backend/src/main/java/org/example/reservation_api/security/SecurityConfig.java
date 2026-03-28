@@ -1,11 +1,9 @@
-package org.example.reservation_api.config;
+package org.example.reservation_api.security;
 
-import org.example.reservation_api.services.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -38,10 +36,6 @@ public class SecurityConfig {
         return authProvider;
     }
 
-    @Bean(name = "bouncer")
-    public AuthenticationManager bouncer(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
