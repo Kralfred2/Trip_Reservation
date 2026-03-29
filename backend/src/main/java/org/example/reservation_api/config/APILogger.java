@@ -4,7 +4,6 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.example.reservation_api.entities.APILog;
-import org.example.reservation_api.entities.ActionLog;
 import org.example.reservation_api.repositories.AuditLogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;

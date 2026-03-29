@@ -8,8 +8,8 @@ import java.util.UUID;
 @Table(name = "app_user")
 public class User extends BaseEntity {
 
-    public static final String ROLE_USER = "USER";
-    public static final String ROLE_ADMIN = "ADMIN";
+    @Enumerated(EnumType.STRING) // Stores "ROLE_ADMIN" in DB instead of 0, 1, 2
+    private UserRole role;
 
     @Column(unique = true, nullable = false)
     private String username;
@@ -23,7 +23,9 @@ public class User extends BaseEntity {
 
 
 
-    public ROLE_ADMIN getRole(){ return ROLE_ADMIN; }
+    public UserRole getRole() {
+        return this.role;
+    }
     public String getUsername() {
         return username;
     }

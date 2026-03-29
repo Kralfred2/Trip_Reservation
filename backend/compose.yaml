@@ -1,8 +1,6 @@
 services:
   db:
     image: postgres:15-alpine
-    env_file:
-      - ../secret.env
     environment:
       POSTGRES_USER: "${DB_USERNAME}"
       POSTGRES_PASSWORD: "${DB_PASSWORD}"

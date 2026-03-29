@@ -1,6 +1,7 @@
 package org.example.reservation_api.controllers;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.example.reservation_api.DTO.LoginRequest;
 import org.example.reservation_api.DTO.LoginResponse;
 import org.example.reservation_api.DTO.RegistrationRequest;
@@ -17,39 +18,23 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/auth")
 public class AuthController {
 
-
-    private final JwtService jwtService;
     private final MyCustomBouncer bouncer;
     private final RegistrationService registrationService;
 
-    public AuthController(MyCustomBouncer bouncer, JwtService jwtService, RegistrationService registrationService) {
-        this.bouncer = bouncer;
-        this.jwtService = jwtService;
-        this.registrationService = registrationService;
-    }
-
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
-        try {
-            bouncer.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
-            );
 
-            String token = jwtService.generateTimedToken(request.getUsername(),2);
-            return ResponseEntity.ok(new LoginResponse(true, token, "Welcome, have fun."));
+            return ResponseEntity.ok(bouncer.tryLogin(request));
 
-        } catch (AuthenticationException e) {
-            return ResponseEntity.status(401)
-                    .body(new LoginResponse(false, null, "Get out."));
         }
-    }
+
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@Valid @RequestBody RegistrationRequest request) {
-        // This triggers your Java Validation -> Service Logic -> DB Stored Procedure
         UUID newUserId = registrationService.register(request);
 
         return ResponseEntity.ok("User registered successfully with ID: " + newUserId);

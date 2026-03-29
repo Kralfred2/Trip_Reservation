@@ -1,41 +1,47 @@
 package org.example.reservation_api.security;
 
 
+import lombok.RequiredArgsConstructor;
+import org.example.reservation_api.DTO.LoginRequest;
+import org.example.reservation_api.DTO.LoginResponse;
 import org.example.reservation_api.entities.User;
+import org.example.reservation_api.repositories.UserRepository;
+import org.example.reservation_api.services.JwtService;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 
-@Component
-public class MyCustomBouncer implements AuthenticationProvider {
+@Service // Changed from @Component to @Service for clarity
+@RequiredArgsConstructor
+public class MyCustomBouncer {
 
-    public User checkGuestList(token Token){
+    private final UserRepository userRepository;
+    private final JwtService jwtService;
+    private final PasswordEncoder passwordEncoder;
 
-    }
+    /**
+     * This is your main door. It handles the 'How' of the login.
+     */
+    public LoginResponse tryLogin(LoginRequest credentials) {
+        // 1. Find User
+        User user = userRepository.findByEmail(credentials.getEmail())
+                .orElseThrow(() -> new BadCredentialsException("Invalid email or password"));
 
-    @Override
-    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        String username = authentication.getName();
-        String password = authentication.getCredentials().toString();
-
-        // CUSTOM LOGIC HERE:
-        // 1. Check DB
-        // 2. Check something else (Time of day? Specific Header?)
-        
-        if ("special_condition".equals(password)) {
-             return new UsernamePasswordAuthenticationToken(username, password, new ArrayList<>());
-        } else {
-            throw new BadCredentialsException("The Bouncer says no!");
+        // 2. Check Password
+        if (!passwordEncoder.matches(credentials.getPassword(), user.getPassword())) {
+            throw new BadCredentialsException("Invalid email or password");
         }
-    }
 
-    @Override
-    public boolean supports(Class<?> authentication) {
-        return authentication.equals(UsernamePasswordAuthenticationToken.class);
+        // 3. Generate and Store (Your DB-First logic from before)
+        String jwt = jwtService.generateTimedToken(user, 2);
+
+        return new LoginResponse(jwt, "Login successful");
     }
 }

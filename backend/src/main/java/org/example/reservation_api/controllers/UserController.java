@@ -23,6 +23,4 @@ public class UserController extends BaseController<User, UserService> {
         super(service);
     }
 
-    // You don't need to write any methods!
-    // GET /api/users will now work automatically.
 }

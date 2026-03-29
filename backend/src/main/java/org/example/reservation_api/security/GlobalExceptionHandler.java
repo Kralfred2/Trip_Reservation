@@ -1,9 +1,11 @@
-package org.example.reservation_api.config;
+package org.example.reservation_api.security;
 
 import org.example.reservation_api.DTO.ErrorResponse;
+import org.example.reservation_api.messages.UserNotFoundException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -13,11 +15,26 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // 1. Handle Database/Relation errors (like your "Position 73" error)
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<String> handleBadCredentials(BadCredentialsException e) {
+        // Return 401 instead of a 500 Internal Server Error
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<String> handleUserNotFound(UserNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+
+    // Catch-all for unexpected mess
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleGeneralError(Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Something went wrong on our end.");
+    }
     @ExceptionHandler(DataAccessException.class)
     public ResponseEntity<ErrorResponse> handleDatabaseError(DataAccessException ex) {
-        // Here you modify the message!
-        // Instead of a scary Postgres error, give a clean one.
+
+
         ErrorResponse error = new ErrorResponse(
                 "Database communication error. Please try again later.",
                 "DB_ERROR_001",
@@ -40,17 +57,5 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    // 3. Catch-all for everything else
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleAll(Exception ex) {
-        // Log the actual trace to your console so YOU see the real error
-        ex.printStackTrace();
 
-        ErrorResponse error = new ErrorResponse(
-                "An internal error occurred. Logic failed.",
-                "INTERNAL_SERVER_ERROR",
-                LocalDateTime.now()
-        );
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
-    }
 }

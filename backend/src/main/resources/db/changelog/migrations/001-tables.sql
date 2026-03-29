@@ -8,6 +8,13 @@ CREATE TABLE app_user (
                           password VARCHAR(255) NOT NULL,
                           role VARCHAR(20) NOT NULL
 );
+CREATE TABLE user_token (
+                            id UUID PRIMARY KEY, -- Inherited from BaseEntity
+                            owner_id UUID NOT NULL, -- Removed UNIQUE so a user can have >1 token
+                            message VARCHAR(200),
+                            expiration TIMESTAMP NOT NULL, -- Changed from DATE to store time
+                            CONSTRAINT fk_token_user FOREIGN KEY (owner_id) REFERENCES app_user(id) -- Requirement: Foreign Key
+);
 
 CREATE TABLE api_log (
                          id UUID PRIMARY KEY,
@@ -77,11 +84,10 @@ CREATE TABLE app_invoice (
 );
 
 -- 10. Revoked Token (Requirement: Index on Non-Key Column)
-CREATE TABLE revoked_token (
+CREATE TABLE blacklisted_token (
                                token_id UUID PRIMARY KEY,
-                               token_hash TEXT NOT NULL,
                                expiry TIMESTAMP NOT NULL
 );
 
 
-CREATE INDEX idx_token_expiry ON revoked_token(expiry);
+CREATE INDEX idx_token_expiry ON blacklisted_token(expiry);

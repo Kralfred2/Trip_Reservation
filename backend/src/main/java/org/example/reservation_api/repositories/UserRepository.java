@@ -14,6 +14,7 @@ public interface UserRepository extends BaseRepository<User> {
     UUID sp_register_user(String p_username, String p_password, String p_email);
 
     Optional<User> findByUsername(String username);
+    Optional<User> findByEmail(String email);
     Optional<User> existsByUsername(String username);
 
 }
