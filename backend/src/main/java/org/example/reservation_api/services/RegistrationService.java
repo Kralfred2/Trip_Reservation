@@ -18,19 +18,18 @@ public class RegistrationService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public UUID register(RegistrationRequest request) {
-        // 1. Logic: Hash the password in Java
-        String encodedPassword = passwordEncoder.encode(request.password());
 
-        // 2. Call the Stored Procedure (The Transaction/Rollback happens here)
+    public String tryRegister(RegistrationRequest request){
+
         try {
-            return userRepository.sp_register_user(
+            String encodedPassword = passwordEncoder.encode(request.password());
+            userRepository.sp_register_user(
                     request.username(),
-                    encodedPassword,
-                    request.email()
+                    request.email(),
+                    encodedPassword
             );
+            return "Success";
         } catch (Exception e) {
-            // This catches the RAISE EXCEPTION from your Postgres Procedure
             throw new RuntimeException("Registration failed: " + e.getMessage());
         }
     }

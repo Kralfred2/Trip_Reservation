@@ -35,8 +35,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@Valid @RequestBody RegistrationRequest request) {
-        UUID newUserId = registrationService.register(request);
-
-        return ResponseEntity.ok("User registered successfully with ID: " + newUserId);
+        String result = registrationService.tryRegister(request);
+        return ResponseEntity.ok(result);
     }
 }

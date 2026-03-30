@@ -1,36 +1,37 @@
 package org.example.reservation_api.entities;
 
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
-@Table(name = "api_log") // Best practice to name the table explicitly
-public class APILog extends BaseEntity  {
-
-
+@Table(name = "api_log")
+public class APILog extends BaseEntity {
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    // I noticed 'name' in your snippet—if this is the Log Name/ID,
-    // you can set it in the constructor too!
+    @Column(columnDefinition = "TEXT") // Allows for very long log names
     private String name;
 
+    @Column(columnDefinition = "TEXT") // Prevents "value too long" for long user identifiers
     private String userId;
+
+    @Column(columnDefinition = "TEXT") // Essential for full URLs or detailed error messages
     private String action;
+
+    @Column(columnDefinition = "TEXT")
     private String status;
+
     private long durationMs;
 
-    // The Main Constructor for your APILogger
+    // The Main Constructor
     public APILog(String userId, String action, String status, long durationMs) {
-        this.createdAt = LocalDateTime.now(); // Don't forget to initialize this!
+        this.createdAt = LocalDateTime.now();
         this.userId = userId;
         this.action = action;
         this.status = status;
         this.durationMs = durationMs;
-        this.name = "LOG-";
+        this.name = "LOG-" + java.util.UUID.randomUUID().toString().substring(0, 8);
     }
 
     // Required by Hibernate
@@ -43,30 +44,11 @@ public class APILog extends BaseEntity  {
         }
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-
-
-    public String getName() {
-        return name;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public String getAction() {
-        return action;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public long getDurationMs() {
-        return durationMs;
-    }
-
+    // Getters
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public String getName() { return name; }
+    public String getUserId() { return userId; }
+    public String getAction() { return action; }
+    public String getStatus() { return status; }
+    public long getDurationMs() { return durationMs; }
 }

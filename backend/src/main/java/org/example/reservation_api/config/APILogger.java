@@ -43,9 +43,10 @@ public class APILogger {
         } catch (Exception e) {
             long duration = System.currentTimeMillis() - start;
 
+            e.printStackTrace();
+
             APILog log = new APILog(username, fullAction, "ERROR: " + e.getMessage(), duration);
             auditLogRepository.save(log);
-
             throw e;
         }
     }

@@ -20,22 +20,4 @@ public class UserService extends BaseService<User, UserRepository> {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public UUID registerNewUser(RegistrationRequest request) {
-        // 1. Logic: Check if username exists using the repository inherited from BaseService
-        if (repository.existsByUsername(request.username()).isPresent()) { // Note: request.username() not getUsername()
-            throw new RuntimeException("Username already taken!");
-        }
-
-        // 2. Mapping: Convert Record data to Entity
-        User user = new User();
-        user.setUsername(request.username());
-        user.setEmail(request.email());
-
-        // 3. Security: Hash the password
-        user.setPassword(passwordEncoder.encode(request.password()));
-
-
-        // 4. Persistence: Save and return the ID
-        return repository.save(user).getId();
-    }
 }

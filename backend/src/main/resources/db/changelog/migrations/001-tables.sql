@@ -9,21 +9,21 @@ CREATE TABLE app_user (
                           role VARCHAR(20) NOT NULL
 );
 CREATE TABLE user_token (
-                            id UUID PRIMARY KEY, -- Inherited from BaseEntity
-                            owner_id UUID NOT NULL, -- Removed UNIQUE so a user can have >1 token
-                            message VARCHAR(200),
-                            expiration TIMESTAMP NOT NULL, -- Changed from DATE to store time
-                            CONSTRAINT fk_token_user FOREIGN KEY (owner_id) REFERENCES app_user(id) -- Requirement: Foreign Key
+                            id         UUID PRIMARY KEY,
+                            owner_id   UUID NOT NULL,
+                            message    TEXT, -- Changed from VARCHAR(200) to TEXT to fit JWTs
+                            expiration TIMESTAMP NOT NULL,
+                            CONSTRAINT fk_token_user FOREIGN KEY (owner_id) REFERENCES app_user(id)
 );
 
 CREATE TABLE api_log (
-                         id UUID PRIMARY KEY,
-                         user_id VARCHAR(255),
-                         action VARCHAR(255) NOT NULL,
-                         status VARCHAR(50) NOT NULL,
+                         id          UUID PRIMARY KEY,
+                         user_id     TEXT, -- Changed to TEXT for flexibility
+                         action      TEXT, -- Changed to TEXT to avoid truncation on long log messages
+                         status      TEXT,
                          duration_ms BIGINT,
-                         name VARCHAR(255), -- ADD THIS LINE
-                         created_at TIMESTAMP NOT NULL
+                         name        VARCHAR(255),
+                         created_at  TIMESTAMP NOT NULL
 );
 
 CREATE TABLE ref_room_type (

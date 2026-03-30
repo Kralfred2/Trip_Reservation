@@ -8,7 +8,8 @@ import java.util.UUID;
 @Table(name = "app_user")
 public class User extends BaseEntity {
 
-    @Enumerated(EnumType.STRING) // Stores "ROLE_ADMIN" in DB instead of 0, 1, 2
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role")
     private UserRole role;
 
     @Column(unique = true, nullable = false)

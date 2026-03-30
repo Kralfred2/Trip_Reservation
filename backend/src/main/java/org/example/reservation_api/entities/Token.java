@@ -18,7 +18,7 @@ public class Token extends BaseEntity {
     @Column(nullable = false)
     private UUID ownerId;
 
-    @Column
+    @Column(columnDefinition = "TEXT")
     private String message;
 
     @Column(nullable = false)
