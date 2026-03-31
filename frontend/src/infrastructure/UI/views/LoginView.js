@@ -13,6 +13,10 @@ export class LoginView {
     emailInput.type = "email";
     emailInput.placeholder = "Enter email";
 
+    const username = document.createElement("input");
+    username.type = "username";
+    username.placeholder = "Enter username";
+
     const passInput = document.createElement("input");
     passInput.type = "password";
     passInput.placeholder = "Enter password";
@@ -20,20 +24,20 @@ export class LoginView {
     const submitBtn = document.createElement("button");
     submitBtn.textContent = "Login";
 
-    form.append(emailInput, passInput, submitBtn);
+    form.append(emailInput,username, passInput, submitBtn);
     container.appendChild(form);
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      await this.handleLogin(emailInput.value, passInput.value);
+      await this.handleLogin(emailInput.value,username.value, passInput.value);
     });
 
     return container;
   }
 
-  async handleLogin(email, password) {
+  async handleLogin(email,username, password) {
     // The View delegates to the Adapter (Facade)
-    const user = await this.authAdapter.login(email, password);
+    const user = await this.authAdapter.login(email,username, password);
 
     if (user) {
       // Dimension of Logic: Explicitly update the application state

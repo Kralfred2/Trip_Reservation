@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.reservation_api.DTO.LoginRequest;
 import org.example.reservation_api.DTO.LoginResponse;
 import org.example.reservation_api.DTO.RegistrationRequest;
+import org.example.reservation_api.security.AppSecurityProperties;
 import org.example.reservation_api.security.MyCustomBouncer;
 import org.example.reservation_api.services.JwtService;
 import org.example.reservation_api.services.RegistrationService;
@@ -24,6 +25,7 @@ public class AuthController {
 
     private final MyCustomBouncer bouncer;
     private final RegistrationService registrationService;
+    private final AppSecurityProperties props;
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
@@ -35,6 +37,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@Valid @RequestBody RegistrationRequest request) {
+
         String result = registrationService.tryRegister(request);
         return ResponseEntity.ok(result);
     }

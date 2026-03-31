@@ -5,14 +5,14 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public record RegistrationRequest(
-        @NotBlank(message = "Username cannot be empty")
-        @Size(min = 3, max = 50)
+
+
+        @NotBlank
         String username,
 
-        @Email(message = "Invalid email format")
+
         String email,
 
         @NotBlank
-        @Size(min = 8)
         String password
 ) {}

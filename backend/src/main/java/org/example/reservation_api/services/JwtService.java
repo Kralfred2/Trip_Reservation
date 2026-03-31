@@ -28,7 +28,7 @@ public class JwtService {
     @Value("${JWT_SECRET}")
     private String secretKey;
 
-    public String generateTimedToken(User user, int timeInMin) {
+    public String generateTimedToken(User user, long timeInMin) {
         // 1. Prepare dates
         Date now = new Date();
         Date expiry = new Date(now.getTime() + 1000L * 60 * timeInMin);

@@ -1,14 +1,10 @@
 package org.example.reservation_api.DTO;
 
-public class LoginResponse {
-    private String token;
-    private String message;
 
-    public LoginResponse(String token, String message) {
-        this.token = token;
-        this.message = message;
-    }
-
-    public String getToken() { return token; }
-    public String getMessage() { return message; }
-}
+public record LoginResponse(
+        String token,
+        long expiresAt,
+        String username,
+        String email,
+        String message
+) {}

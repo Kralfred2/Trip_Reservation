@@ -1,6 +1,15 @@
+
 export class Token {
-  constructor(userId, value) {
-    this.userId = userId;
-    this.value = value;
+  constructor(value, expiresAt) {
+    this.value = value;        
+    this.expiresAt = expiresAt; 
+  }
+  
+  isExpired() {
+    return Date.now() > this.expiresAt;
+  }
+
+  getExpirationDate() {
+    return new Date(this.expiresAt).toLocaleString();
   }
 }

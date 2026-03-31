@@ -38,10 +38,9 @@ public class MyCustomBouncer {
         if (!passwordEncoder.matches(credentials.getPassword(), user.getPassword())) {
             throw new BadCredentialsException("Invalid email or password");
         }
-
-        // 3. Generate and Store (Your DB-First logic from before)
-        String jwt = jwtService.generateTimedToken(user, 2);
-
-        return new LoginResponse(jwt, "Login successful");
+        long expiresInSeconds = 3600;
+        String jwt = jwtService.generateTimedToken(user, expiresInSeconds);
+        System.out.println("Generated JWT: " + jwt);
+        return new LoginResponse(jwt, expiresInSeconds, user.getUsername(), user.getEmail(), "Login successful");
     }
 }

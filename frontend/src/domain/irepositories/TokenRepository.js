@@ -3,10 +3,6 @@ export class TokenRepository {
     throw new Error("Not implemented");
   }
 
-  async validateToken(token){
-     throw new Error("Not implemented");
-  }
-
   async saveToken(token) {
     throw new Error("Not implemented");
   }

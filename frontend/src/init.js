@@ -9,11 +9,11 @@ import { Router } from './infrastructure/routing/Router.js';
 import { CheckAuthentication } from './application/multiplugs/CheckAuthentication.js';
 import { ViewFactory } from './infrastructure/UI/views/ViewFactory.js';
 
-const isDevelopment = true;
+const isDevelopment = false;
 
 // 1. Initialize Infrastructure
 const tokenRepo = new CookieTokenRepository();
-const userRepo = isDevelopment ? new MockApiUserRepository() : new ApiUserRepository(); 
+const userRepo = isDevelopment ? new MockApiUserRepository() : new ApiUserRepository("http://localhost:8080");
 
 // 2. Initialize Application Logic
 const authAdapter = new AuthAdapter(userRepo, tokenRepo);
