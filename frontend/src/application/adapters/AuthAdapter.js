@@ -5,25 +5,24 @@ export class AuthAdapter {
     this.tokenRepository = tokenRepository;
   }
 
-  async getCurrentUser() {
-    const token = this.tokenRepository.getToken();
 
-    if (!token) return null;
+async getCurrentUser() {
+  const tokenEntity = this.tokenRepository.getToken(); 
 
-    try {
-      return await this.userRepository.validateToken(token);
-    } catch {
-      this.tokenRepository.clearToken();
-      return null;
-    }
+  if (!tokenEntity || !tokenEntity.value) return null;
+
+  try {
+    return await this.userRepository.validateToken(tokenEntity.value); 
+  } catch (error) {
+    this.tokenRepository.clearToken(); // Clear bad cookies
+    return null;
   }
+}
 
-  // application/adapters/AuthAdapter.js
 async login(email, username, password) {
-  // 1. Get the data from Java
+
   const result = await this.userRepository.login(email, username, password);
   
-  // 2. 'result.token' is the Token OBJECT {value, expiresAt}
   if (result && result.token) {
     this.tokenRepository.saveToken(result.token); 
     return result.user;

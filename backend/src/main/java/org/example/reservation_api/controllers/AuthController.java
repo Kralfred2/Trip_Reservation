@@ -41,4 +41,16 @@ public class AuthController {
         String result = registrationService.tryRegister(request);
         return ResponseEntity.ok(result);
     }
+
+    @PostMapping("/validate")
+    public ResponseEntity<LoginResponse> validateToken(@RequestHeader("Authorization") String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        System.out.println("Generated header: " + authHeader);
+        String token = authHeader.substring(7);
+        System.out.println("Generated token without header: " + token);
+        return ResponseEntity.ok(bouncer.checkToken(token));
+    }
 }

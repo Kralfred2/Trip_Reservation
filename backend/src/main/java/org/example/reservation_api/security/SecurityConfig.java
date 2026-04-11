@@ -1,6 +1,7 @@
 package org.example.reservation_api.security;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -66,10 +67,14 @@ public class SecurityConfig implements WebMvcConfigurer {
 
         return http.build();
     }
+
+    @Value("${app.cors.allowed-origins}")
+    private String allowedOrigin;
+
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**") // Apply to all endpoints
-                .allowedOrigins("http://127.0.0.1:5501", "http://localhost:5501") // Your frontend URL
+                .allowedOrigins(allowedOrigin)
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);

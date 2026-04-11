@@ -4,6 +4,7 @@ package org.example.reservation_api.security;
 import lombok.RequiredArgsConstructor;
 import org.example.reservation_api.DTO.LoginRequest;
 import org.example.reservation_api.DTO.LoginResponse;
+import org.example.reservation_api.entities.Token;
 import org.example.reservation_api.entities.User;
 import org.example.reservation_api.repositories.UserRepository;
 import org.example.reservation_api.services.JwtService;
@@ -18,7 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 
-@Service // Changed from @Component to @Service for clarity
+@Service
 @RequiredArgsConstructor
 public class MyCustomBouncer {
 
@@ -26,15 +27,12 @@ public class MyCustomBouncer {
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
 
-    /**
-     * This is your main door. It handles the 'How' of the login.
-     */
     public LoginResponse tryLogin(LoginRequest credentials) {
-        // 1. Find User
+
         User user = userRepository.findByEmail(credentials.getEmail())
                 .orElseThrow(() -> new BadCredentialsException("Invalid email or password"));
 
-        // 2. Check Password
+
         if (!passwordEncoder.matches(credentials.getPassword(), user.getPassword())) {
             throw new BadCredentialsException("Invalid email or password");
         }
@@ -42,5 +40,22 @@ public class MyCustomBouncer {
         String jwt = jwtService.generateTimedToken(user, expiresInSeconds);
         System.out.println("Generated JWT: " + jwt);
         return new LoginResponse(jwt, expiresInSeconds, user.getUsername(), user.getEmail(), "Login successful");
+    }
+
+    public LoginResponse checkToken(String tokenString) {
+        Token responceToken = jwtService.isTokenValid(tokenString);
+
+        if (responceToken.getOwnerId() == null) {
+            return new LoginResponse(null, 0, null, null, responceToken.getMessage());
+        } else {
+            // Use findById safely
+            return userRepository.findById(responceToken.getOwnerId())
+                    .map(user -> {
+                        long expiresInSeconds = 3600;
+                        String jwt = jwtService.generateTimedToken(user, expiresInSeconds);
+                        return new LoginResponse(jwt, expiresInSeconds, user.getUsername(), user.getEmail(), "Login successful");
+                    })
+                    .orElseGet(() -> new LoginResponse(null, 0, null, null, "User no longer exists"));
+        }
     }
 }

@@ -1,35 +1,31 @@
 
 export class Router {
-  constructor(appState, routes, container) {
-    this.appState = appState;
-    this.routes = routes;
-    this.container = container;
-
-
-    window.addEventListener("hashchange", () => this.handleRoute());
-  }
-
-  handleRoute() {
-  const path = window.location.hash.slice(1) || "/login";
-  const route = this.routes[path];
-
-  if (route) {
-    if (route.protected && !this.appState.isAuthenticated()) {
-      window.location.hash = "/login";
-      return;
-    }
-
-    const viewInstance = route.createView(); 
-    this.render(viewInstance);
-  }
+constructor(routes, dispatcher) {
+  this.dispatcher = dispatcher;
+  this.routes = routes;
+  this.handleRoute = this.handleRoute.bind(this);
 }
 
-  render(view) {
-    while (this.container.firstChild) {
-      this.container.removeChild(this.container.firstChild);
-    }
-    
-    const element = view.render(); 
-    this.container.appendChild(element);
+
+handleRoute() {
+  const hash = window.location.hash || "#/home";
+  const path = hash.replace("#", ""); 
+
+
+  if (!Array.isArray(this.routes)) {
+    console.error("Router error: this.routes is not an array!");
+    return;
   }
+
+  let route = this.routes.find(r => r.path === path);
+
+
+  if (!route) {
+    console.warn(`Route "${path}" not found. Redirecting to /home.`);
+    window.location.hash = "/home"; 
+    return;
+  }
+
+  this.dispatcher.dispatch(route);
+}
 }

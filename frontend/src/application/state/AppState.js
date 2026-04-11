@@ -9,6 +9,7 @@ export const NavigationContext = {
 
 export class App {
   constructor() {
+    this.redirectUrl = null;
     this.state = {
       user: null, //
       context: NavigationContext.LOADING,
@@ -16,8 +17,6 @@ export class App {
     };
     this.listeners = [];
   }
-
-  // --- Selectors (Explicit Decision-Making Dimensions) ---
 
   getUser() {
     return this.state.user; //
@@ -31,8 +30,6 @@ export class App {
     return this.state.context;
   }
 
-  // --- Dispatcher (State Transitions) ---
-
   setUser(user) {
     
     if (user) {
@@ -41,6 +38,7 @@ export class App {
         user: user, //
         context: NavigationContext.AUTHENTICATED
       };
+      console.log("User set to: " + this.state);
     } else {
       this.state = {
         ...this.state,
@@ -52,11 +50,11 @@ export class App {
   }
 
   setError(error) {
-    this.state = { ...this.state, error };
-    this.notify();
-  }
+  if (this.state.error === error) return; 
 
-  // --- Observer Pattern Logic ---
+  this.state.error = error;
+  this.notify();
+}
 
   subscribe(callback) {
     this.listeners.push(callback);
@@ -65,4 +63,6 @@ export class App {
   notify() {
     this.listeners.forEach((callback) => callback(this.state));
   }
+  setRedirectUrl(url) { this.redirectUrl = url; }
+  getRedirectUrl() { return this.redirectUrl; }
 }

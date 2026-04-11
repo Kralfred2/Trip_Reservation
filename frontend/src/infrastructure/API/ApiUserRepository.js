@@ -7,9 +7,21 @@ export class ApiUserRepository extends UserRepository{
       super();
     this.baseUrl = baseUrl;
   }
-    async validateToken(){
 
+
+
+async validateToken(tokenString) {
+  const response = await fetch(`${this.baseUrl}/api/auth/validate`, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${tokenString}`, 
+      "Content-Type": "application/json"
     }
+  });
+console.log("Checking token: " + tokenString);
+
+  return response.ok ? response.json() : null;
+}
 
     async login(email, username, password){
       const response = await fetch(`${this.baseUrl}/api/auth/login`, {

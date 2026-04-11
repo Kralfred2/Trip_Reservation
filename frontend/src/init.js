@@ -1,54 +1,48 @@
 // main.js
 
+import { CONFIG } from './config.js';
 import { ApiUserRepository } from './infrastructure/API/ApiUserRepository.js'
 import { MockApiUserRepository } from '../tests/mockDb/MockApiUserRepository.js'
 import { App } from './application/state/AppState.js';
 import { AuthAdapter } from './application/adapters/AuthAdapter.js';
 import { CookieTokenRepository } from './infrastructure/storage/CookieTokenRepository.js';
 import { Router } from './infrastructure/routing/Router.js';
-import { CheckAuthentication } from './application/multiplugs/CheckAuthentication.js';
+import { getRoutes } from './infrastructure/routing/routes.js';
 import { ViewFactory } from './infrastructure/UI/views/ViewFactory.js';
+import { NavigationDispatcher } from './application/navigation/NavigationDispatcher.js';
+import { AuthService } from './application/service/AuthService.js';
+
 
 const isDevelopment = false;
 
 // 1. Initialize Infrastructure
 const tokenRepo = new CookieTokenRepository();
-const userRepo = isDevelopment ? new MockApiUserRepository() : new ApiUserRepository("http://localhost:8080");
+const userRepo = isDevelopment 
+    ? new MockApiUserRepository() 
+    : new ApiUserRepository(CONFIG.API_BASE_URL);
 
 // 2. Initialize Application Logic
 const authAdapter = new AuthAdapter(userRepo, tokenRepo);
 const appState = new App();
-const checkAuth = new CheckAuthentication(authAdapter);
 
-const viewFactory = new ViewFactory(authAdapter, appState);
 
-// 4. Update the routes to use these specific instances
-const routes = {
-  "/login": { 
-    protected: false, 
-    // We pass a function (callback) instead of an instance
-    createView: () => viewFactory.getLoginView() 
-  },
-  "/app": { 
-    protected: true, 
-    createView: () => viewFactory.getHomeView() 
-  },
-  "/register": {
-    protected: false,
-    createView: () => viewFactory.getRegisterView()
-  }
-};
+const authService = new AuthService(authAdapter ,appState)
+const viewFactory = new ViewFactory(authService, appState);
+const appRoutes = getRoutes(viewFactory);
 
-// 5. Initialize Routing
-const rootElement = document.getElementById("app"); // This is the 'container'
-const router = new Router(appState, routes, rootElement);
+
+const container = document.getElementById("app");
+
+const dispatcher = new NavigationDispatcher(appState, viewFactory, container, authService);
+const router = new Router(appRoutes, dispatcher);
+
+
+dispatcher.setRouter(router); 
+window.addEventListener('hashchange', () => router.handleRoute());
 
 async function init() {
-  const user = await checkAuth.execute();
-  if (user) {
-    appState.setUser(user);
-  }
-  router.handleRoute(); // Trigger initial render based on URL
+  await authService.checkToken(); 
+  router.handleRoute();
 }
 
 init();

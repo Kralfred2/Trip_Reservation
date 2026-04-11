@@ -2,19 +2,26 @@ import { LoginView } from "../UI/views/LoginView.js";
 import { RegisterView } from "../UI/views/RegisterView.js";
 import { HomeView } from "../UI/views/HomeView.js";
 
-export const routes = {
-  "/login": {
-    protected: false,
-    view: new LoginView()
-  },
 
-  "/register": {
+export const getRoutes = (viewFactory) => ([ 
+  {
+    path: "/login",
     protected: false,
-    view: new RegisterView()
+    createView: () => viewFactory.getLoginView()
   },
-
-  "/app": {
+  {
+    path: "/register",
+    protected: false,
+    createView: () => viewFactory.getRegisterView()
+  },
+  {
+    path: "/app",
     protected: true,
-    view: new HomeView()
+    createView: () => viewFactory.getHomeView()
+  },
+  {
+    path: "/home", 
+    protected: false,
+    createView: () => viewFactory.getHomeView() 
   }
-};
+]);

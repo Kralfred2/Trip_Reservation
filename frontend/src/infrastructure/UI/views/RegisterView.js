@@ -1,7 +1,6 @@
 export class RegisterView{
-      constructor(authAdapter, appState) {
+      constructor(authAdapter) {
     this.authAdapter = authAdapter;
-    this.appState = appState;
   }
 
   render() {
@@ -22,15 +21,24 @@ export class RegisterView{
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      // Interaction via the Facade
+
       const user = await this.authAdapter.login(emailInput.value, "password_placeholder");
       
       if (user) {
-        // Dispatching a state change instead of manual navigation
         this.appState.setUser(user); 
         window.location.hash = "/app";
       }
     });
+    const navContainer = document.createElement("div");
+    navContainer.style.marginTop = "1rem";
+
+    const registerLink = document.createElement("a");
+    registerLink.href = "#/login";
+    registerLink.textContent = "Login";
+    registerLink.style.cursor = "pointer";
+
+    navContainer.appendChild(registerLink);
+    container.appendChild(navContainer);
 
     return container;
   }

@@ -1,12 +1,11 @@
 // infrastructure/ui/LoginView.js
 export class LoginView {
-  constructor(authAdapter, appState) {
-    this.authAdapter = authAdapter;
-    this.appState = appState;
+  constructor(authService) {
+    this.authService = authService;
   }
 
   render() {
-    const container = document.createElement("div"); // Explicit DOM API
+    const container = document.createElement("div"); 
     
     const form = document.createElement("form");
     const emailInput = document.createElement("input");
@@ -31,20 +30,27 @@ export class LoginView {
       e.preventDefault();
       await this.handleLogin(emailInput.value,username.value, passInput.value);
     });
+    const navContainer = document.createElement("div");
+    navContainer.style.marginTop = "1rem";
+
+    const registerLink = document.createElement("a");
+    registerLink.href = "#/register";
+    registerLink.textContent = "Register";
+    registerLink.style.cursor = "pointer";
+
+    navContainer.appendChild(registerLink);
+    container.appendChild(navContainer);
 
     return container;
   }
 
-  async handleLogin(email,username, password) {
-    // The View delegates to the Adapter (Facade)
-    const user = await this.authAdapter.login(email,username, password);
+async handleLogin(email, username, password) {
+  const user = await this.authService.login(email, username, password);
 
-    if (user) {
-      // Dimension of Logic: Explicitly update the application state
-      this.appState.setUser(user); 
-      window.location.hash = "/app"; // Trigger navigation context change
-    } else {
-      alert("Invalid credentials. Please try again.");
-    }
+  if (user) {
+    window.location.hash = "/app"; 
+  } else {
+    this.showError("Login failed");
   }
+}
 }
