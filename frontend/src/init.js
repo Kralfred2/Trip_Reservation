@@ -15,13 +15,12 @@ import { AuthService } from './application/service/AuthService.js';
 
 const isDevelopment = false;
 
-// 1. Initialize Infrastructure
 const tokenRepo = new CookieTokenRepository();
 const userRepo = isDevelopment 
     ? new MockApiUserRepository() 
     : new ApiUserRepository(CONFIG.API_BASE_URL);
 
-// 2. Initialize Application Logic
+
 const authAdapter = new AuthAdapter(userRepo, tokenRepo);
 const appState = new App();
 
