@@ -20,10 +20,22 @@ getToken() {
 }
 
 
+// CookieTokenRepository.js
 saveToken(tokenObject) {
-  const maxAge = tokenObject.expiresAt; 
-  console.log("Repository saving token:");
-  document.cookie = `token=${tokenObject.value}; max-age=${maxAge}; path=/; SameSite=Lax`;
+  // Debug: see if these are actually strings/numbers or undefined
+  console.log("Value:", tokenObject.value); 
+  console.log("MaxAge:", tokenObject.expiresAt);
+
+  const value = tokenObject.value;
+  // Fallback to a default max-age (e.g., 1 hour) if expiresAt is missing
+  const maxAge = tokenObject.expiresAt || 3600; 
+
+  if (!value || value === "undefined") {
+      console.error("Attempted to save an invalid token string!");
+      return;
+  }
+
+  document.cookie = `token=${value}; max-age=${maxAge}; path=/; SameSite=Lax`;
 }
 
   clearToken() {

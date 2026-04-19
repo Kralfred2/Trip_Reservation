@@ -16,7 +16,7 @@ export class UserRepository {
   /**
    * @returns {Promise<User[]>} 
    */
-  async findAll(){
+  async getAllUsers(){
     throw new Error("Not implemented");
   }
 }

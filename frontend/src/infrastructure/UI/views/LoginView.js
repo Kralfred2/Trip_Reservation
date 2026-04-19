@@ -46,11 +46,12 @@ export class LoginView {
 
 async handleLogin(email, username, password) {
   const user = await this.authService.login(email, username, password);
-
+console.log("found user :(" );
   if (user) {
+    console.log("found user :(");
     window.location.hash = "/app"; 
   } else {
-    this.showError("Login failed");
+    console.log("login failed :(");
   }
 }
 }

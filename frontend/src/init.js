@@ -4,7 +4,6 @@ import { CONFIG } from './config.js';
 import { ApiUserRepository } from './infrastructure/API/ApiUserRepository.js'
 import { MockApiUserRepository } from '../tests/mockDb/MockApiUserRepository.js'
 import { App } from './application/state/AppState.js';
-import { AuthAdapter } from './application/adapters/AuthAdapter.js';
 import { CookieTokenRepository } from './infrastructure/storage/CookieTokenRepository.js';
 import { Router } from './infrastructure/routing/Router.js';
 import { getRoutes } from './infrastructure/routing/routes.js';
@@ -21,11 +20,11 @@ const userRepo = isDevelopment
     : new ApiUserRepository(CONFIG.API_BASE_URL);
 
 
-const authAdapter = new AuthAdapter(userRepo, tokenRepo);
+
 const appState = new App();
 
 
-const authService = new AuthService(authAdapter ,appState)
+const authService = new AuthService(userRepo, tokenRepo ,appState)
 const viewFactory = new ViewFactory(authService, appState);
 const appRoutes = getRoutes(viewFactory);
 
@@ -39,8 +38,10 @@ const router = new Router(appRoutes, dispatcher);
 dispatcher.setRouter(router); 
 window.addEventListener('hashchange', () => router.handleRoute());
 
+authService.handleUnauthorizedAccess();
+
 async function init() {
-  await authService.handleUnauthorizedAccess(); 
+  
   router.handleRoute();
 }
 

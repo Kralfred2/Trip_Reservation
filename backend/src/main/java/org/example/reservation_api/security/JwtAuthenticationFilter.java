@@ -10,6 +10,7 @@ import org.example.reservation_api.repositories.TokenRepository;
 import org.example.reservation_api.services.JwtService;
 import org.jspecify.annotations.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -17,6 +18,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -24,6 +26,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final TokenRepository tokenRepository;
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -63,7 +66,30 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
-        // Move to the next filter/controller
+        final String username;
+
+
+        username = jwtService.extractUsername(jwt); // <--- HERE IS YOUR USERNAME
+
         filterChain.doFilter(request, response);
+
+
+        if (jwtService.isTokenValid(jwt) != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+
+            // Extract the authorities from the token string
+            List<SimpleGrantedAuthority> authorities = jwtService.getAuthorities(jwt);
+
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                    username,
+                    null,
+                    authorities // <--- THIS IS THE KEY PART
+            );
+
+            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+            // Hand it to Spring
+            SecurityContextHolder.getContext().setAuthentication(authToken);
+        }
     }
+
 }

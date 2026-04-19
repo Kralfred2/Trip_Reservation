@@ -14,19 +14,15 @@ public abstract class BaseService<T extends BaseEntity, R extends BaseRepository
     }
 
     public List<T> findAll() {
-        return repository.findAll();
+        return repository.dbFindAll();
     }
 
-    /**
-     * The business logic update method.
-     */
     public T update(UUID id, T updatedData) {
         // Using your custom 'dbFindById'
         return repository.dbFindById(id)
                 .map(existingEntity -> {
                     updatedData.setId(id);
 
-                    // Using your custom 'dbUpdate'
                     return repository.dbUpdate(updatedData);
                 })
                 .orElseThrow(() -> new RuntimeException("Resource not found with ID: " + id));

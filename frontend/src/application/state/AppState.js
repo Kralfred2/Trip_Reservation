@@ -45,7 +45,7 @@ export class App {
         user: user, //
         context: NavigationContext.AUTHENTICATED
       };
-      console.log("User set to: " + this.state);
+      console.log("User set to: " + JSON.stringify(this.state));
     } else {
       this.state = {
         ...this.state,

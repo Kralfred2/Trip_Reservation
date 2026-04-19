@@ -11,6 +11,7 @@ import java.util.UUID;
 
 @Service
 public class UserService extends BaseService<User, UserRepository> {
+
     @Autowired
     public UserService(UserRepository repository) {
         super(repository);

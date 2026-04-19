@@ -9,13 +9,18 @@ import org.example.reservation_api.entities.Token;
 import org.example.reservation_api.entities.User;
 import org.example.reservation_api.repositories.TokenRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.security.Key;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static javax.crypto.Cipher.SECRET_KEY;
 
@@ -24,26 +29,23 @@ import static javax.crypto.Cipher.SECRET_KEY;
 public class JwtService {
     private final TokenRepository tokenRepository;
 
-    // Pull this from your .env file for safety!
+
     @Value("${JWT_SECRET}")
     private String secretKey;
 
     public String generateTimedToken(User user, long timeInMin) {
-        // 1. Prepare dates
         Date now = new Date();
         Date expiry = new Date(now.getTime() + 1000L * 60 * timeInMin);
-
-        // 2. Create and Save the Token Entity first
-        // This allows @GeneratedValue to create the UUID
         Token tokenEntity = new Token(user.getId(), expiry, "ACTIVE");
         tokenEntity = tokenRepository.save(tokenEntity); // Now tokenEntity.getId() is populated!
 
-        // 3. Build the JWT using the DB-generated ID
         return Jwts.builder()
                 .header().add("typ", "JWT").and()
-                .id(tokenEntity.getId().toString()) // The DB ID is now the 'jti'
+                .id(tokenEntity.getId().toString())
                 .subject(user.getUsername())
                 .claim("userId", user.getId().toString())
+                .claim("authorities", user.getPermissions())
+                .claim("role", user.getRole().name())
                 .issuedAt(now)
                 .expiration(expiry)
                 .signWith(getSignInKey())
@@ -58,13 +60,11 @@ public class JwtService {
                     .parseSignedClaims(token)
                     .getPayload();
 
-            // Get the ID from the 'jti' claim (this is the UUID from your BaseEntity)
             UUID databaseTokenId = UUID.fromString(claims.getId());
             UUID ownerId = UUID.fromString(claims.get("userId", String.class));
 
-            // Create a temporary object to pass back the data
             Token returnVal = new Token(ownerId, claims.getExpiration(), "CORRECT");
-            returnVal.setId(databaseTokenId); // Set the ID so we can check the blacklist later
+            returnVal.setId(databaseTokenId);
 
             return returnVal;
 
@@ -73,6 +73,43 @@ public class JwtService {
         } catch (Exception e) {
             return new Token(null, null, "Invalid");
         }
+    }
+
+    public String extractUsername(String token) {
+        return extractClaim(token, Claims::getSubject);
+    }
+
+    // Generic helper to extract a single claim
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        final Claims claims = extractAllClaims(token);
+        return claimsResolver.apply(claims);
+    }
+
+    public Claims extractAllClaims(String token) {
+        return Jwts.parser()
+                .verifyWith(getSignInKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+    }
+
+    public List<SimpleGrantedAuthority> getAuthorities(String token) {
+        Claims claims = extractAllClaims(token);
+
+        List<String> permissions = claims.get("authorities", List.class);
+
+        String role = claims.get("role", String.class);
+        List<SimpleGrantedAuthority> authList = new ArrayList<>();
+
+        if (permissions != null) {
+            permissions.forEach(p -> authList.add(new SimpleGrantedAuthority(p)));
+        }
+
+        if (role != null) {
+            authList.add(new SimpleGrantedAuthority("ROLE_" + role));
+        }
+
+        return authList;
     }
 
     private SecretKey getSignInKey() {

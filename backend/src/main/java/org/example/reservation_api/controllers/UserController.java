@@ -8,6 +8,7 @@ import org.example.reservation_api.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,9 +24,10 @@ public class UserController extends BaseController<User, UserService> {
     }
 
 
-    @Override
-    @PreAuthorize("hasAuthority('view_users')")
+    @GetMapping
     public ResponseEntity<List<User>> getAll() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("User Authorities: " + auth.getAuthorities());
         return super.getAll();
     }
 
