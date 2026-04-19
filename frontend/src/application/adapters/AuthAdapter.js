@@ -3,31 +3,36 @@ export class AuthAdapter {
   constructor(userRepository, tokenRepository) {
     this.userRepository = userRepository;
     this.tokenRepository = tokenRepository;
+  }     
+
+
+  async getTokenFromLoc(){
+    return this.tokenRepository.getToken(); 
   }
 
-
-async getCurrentUser() {
-  const tokenEntity = this.tokenRepository.getToken(); 
-
-  if (!tokenEntity || !tokenEntity.value) return null;
-
-  try {
-    return await this.userRepository.validateToken(tokenEntity.value); 
+  async tryValidateToken(token){
+   try {
+    return await this.userRepository.validateToken(token); 
   } catch (error) {
-    this.tokenRepository.clearToken(); // Clear bad cookies
+    this.tokenRepository.clearToken(); 
     return null;
   }
-}
+  }
+
+  async saveToken(token){
+    this.tokenRepository.saveToken(token);
+  }
+
+async clearSession() {
+    this.tokenRepository.clearToken();
+  }
 
 async login(email, username, password) {
 
-  const result = await this.userRepository.login(email, username, password);
+  const response = await this.userRepository.login(email, username, password);
+  console.log("Login user response" + JSON.stringify(response));
+  console.log("Login token response" + response.token.token);
+  return response;
   
-  if (result && result.token) {
-    this.tokenRepository.saveToken(result.token); 
-    return result.user;
-  }
-  
-  throw new Error("Login failed: No token returned");
 }
 }

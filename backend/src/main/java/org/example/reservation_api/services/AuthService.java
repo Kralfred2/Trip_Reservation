@@ -19,15 +19,15 @@ public class AuthService {
 
     @Transactional
     public void registerUser(RegistrationRequest request) {
-        if (userRepository.existsByUsername(request.username())) {
+        if (userRepository.existsByUsername(request.getUsername())) {
             throw new RuntimeException("Username already taken!");
         }
 
         User newUser = new User();
-        newUser.setUsername(request.username());
+        newUser.setUsername(request.getUsername());
         // CRITICAL: Hash the password before saving!
-        newUser.setPassword(passwordEncoder.encode(request.password()));
-        newUser.setEmail(request.email());
+        newUser.setPassword(passwordEncoder.encode(request.getPassword()));
+        newUser.setEmail(request.getEmail());
 
         userRepository.save(newUser);
 

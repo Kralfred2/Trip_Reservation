@@ -1,5 +1,4 @@
-// application/navigation/Dispatcher.js
-// application/navigation/NavigationDispatcher.js
+
 import { Navbar } from "../../infrastructure/UI/components/Navbar.js";
 
 export class NavigationDispatcher {
@@ -11,7 +10,6 @@ export class NavigationDispatcher {
     this.router = null; 
     
     this.appState.subscribe(() => {
-      
       this.handleStateChange();
     });
   }
@@ -24,7 +22,6 @@ export class NavigationDispatcher {
     const isAuth = this.appState.isAuthenticated();
     const currentPath = window.location.hash.replace("#", "") || "/home";
 
-    // Security & UX logic: Redirect based on new Auth status
     if (isAuth && (currentPath === "/login" || currentPath === "/register")) {
       window.location.hash = "/app";
     } else if (!isAuth && currentPath === "/app") {
@@ -40,26 +37,31 @@ export class NavigationDispatcher {
     }
   }
 
-  async dispatch(route) {
+  async dispatch(routeOrPath) {
     const context = this.appState.getContext();
     if (context === 'LOADING') return;
 
+    // 1. Convert string to route object if necessary
+    let route = routeOrPath;
+    if (typeof routeOrPath === 'string') {
+      // Ask the router to find the object { path, protected, createView }
+      route = this.router.findRoute(routeOrPath);
+    }
+
+    if (!route) {
+      console.error("No route found for:", routeOrPath);
+      return;
+    }
+
     const isAuth = this.appState.isAuthenticated();
 
+    // 2. Now 'route' is an object, so these checks work
     if (route.protected && !isAuth) {
-      this.appState.setRedirectUrl(window.location.hash);
-      window.location.hash = "/login";
+      this.authService.handleUnauthorizedAccess(window.location.hash);
       return;
     }
 
-    if (isAuth && (route.path === '/login' || route.path === '/register')) {
-      window.location.hash = "/app"; 
-      return;
-    }
-
-    this.appState.setError(null);
-
-
+    // 3. This now works because route is the object from routes.js
     const view = route.createView(); 
     this.render(view);
   }
@@ -74,11 +76,11 @@ export class NavigationDispatcher {
 
 
     if (this.appState.isAuthenticated()) {
-      const navbar = new Navbar(this.authService, this.appState);
+      const navbar = new Navbar(this.authService, this.appState, this);
       this.container.appendChild(navbar.render());
     }
 
-    // Add the main view content
+
     const pageElement = view.render();
     this.container.appendChild(pageElement);
   }

@@ -1,9 +1,16 @@
 package org.example.reservation_api.entities;
 
 import jakarta.persistence.*;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
+
+@RequiredArgsConstructor
+@Setter
 @Entity
 @Table(name = "app_user")
 public class User extends BaseEntity {
@@ -21,6 +28,15 @@ public class User extends BaseEntity {
     @Column(name = "password", nullable = false)
     private String password;
 
+    // User.java
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_permissions", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "permission")
+    private Set<String> permissions = new HashSet<>();
+
+    public Set<String> getPermissions() {
+        return permissions;
+    }
 
 
 
@@ -31,26 +47,13 @@ public class User extends BaseEntity {
         return username;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
     public String getEmail() {
         return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     public String getPassword() {
         return password;
     }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
 
 
 }

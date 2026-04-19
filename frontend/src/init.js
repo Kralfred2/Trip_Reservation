@@ -40,7 +40,7 @@ dispatcher.setRouter(router);
 window.addEventListener('hashchange', () => router.handleRoute());
 
 async function init() {
-  await authService.checkToken(); 
+  await authService.handleUnauthorizedAccess(); 
   router.handleRoute();
 }
 

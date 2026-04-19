@@ -11,7 +11,7 @@ export class App {
   constructor() {
     this.redirectUrl = null;
     this.state = {
-      user: null, //
+      user: null, 
       context: NavigationContext.LOADING,
       error: null
     };
@@ -19,7 +19,14 @@ export class App {
   }
 
   getUser() {
-    return this.state.user; //
+    return this.state.user; 
+  }
+
+  hasPermission(permission) {
+    if (!this.state.user || !Array.isArray(this.state.user.permissions)) {
+      return false;
+    }
+    return this.state.user.permissions.includes(permission);
   }
 
   isAuthenticated() {

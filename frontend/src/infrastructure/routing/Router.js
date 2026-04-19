@@ -6,6 +6,12 @@ constructor(routes, dispatcher) {
   this.handleRoute = this.handleRoute.bind(this);
 }
 
+findRoute(path) {
+    // We clean the path to ensure matches (removing # or trailing slashes)
+    const cleanPath = path.replace('#', '') || '/';
+    return this.routes.find(r => r.path === cleanPath);
+  }
+
 
 handleRoute() {
   const hash = window.location.hash || "#/home";
@@ -25,6 +31,7 @@ handleRoute() {
     window.location.hash = "/home"; 
     return;
   }
+  
 
   this.dispatcher.dispatch(route);
 }

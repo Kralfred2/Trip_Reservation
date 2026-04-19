@@ -11,18 +11,18 @@ getToken() {
     let c = ca[i].trim();
     if (c.indexOf(name) == 0) {
       const tokenValue = c.substring(name.length, c.length);
-      console.log("Token found in cookie:", tokenValue); // Debug log
+      console.log("Token found in cookie by repository:", tokenValue); 
       return new Token(tokenValue, null); 
     }
   }
-  console.log("No token found in cookies.");
+  console.log("No token found in cookies by repository.");
   return null;
 }
 
 
 saveToken(tokenObject) {
   const maxAge = tokenObject.expiresAt; 
-
+  console.log("Repository saving token:");
   document.cookie = `token=${tokenObject.value}; max-age=${maxAge}; path=/; SameSite=Lax`;
 }
 

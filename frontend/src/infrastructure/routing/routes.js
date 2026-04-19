@@ -21,7 +21,14 @@ export const getRoutes = (viewFactory) => ([
   },
   {
     path: "/home", 
-    protected: false,
+    protected: true,
     createView: () => viewFactory.getHomeView() 
+  },
+  {
+    path: "/admin/view/users",
+    protected: true,
+    requiredPermission: "can_view_users",
+    createView: () => viewFactory.getAdminUserView()
   }
+  
 ]);

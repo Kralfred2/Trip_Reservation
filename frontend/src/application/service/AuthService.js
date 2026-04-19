@@ -5,7 +5,58 @@ export class AuthService {
     this.appState = appState;
   }
 
+  // application/services/AuthService.js
+async handleUnauthorizedAccess(requestedHash) {
+  console.log("Checking authorization for:", requestedHash);
+
+  const token = await this.authAdapter.getTokenFromLoc();
+
+  if (token) {
+    try {
+      const user = await this.authAdapter.tryValidateToken(token.value);
+      if (user) {
+        this.appState.setUser(user);
+        return; 
+      }
+    } catch (error) {
+      console.error("Token validation failed");
+    }
+  }
+
+  // FIX: Explicitly set state to GUEST so the Dispatcher stops ignoring requests
+  this.appState.setUser(null); 
+
+  console.log("No valid session found, redirecting to login.");
+  this.appState.setRedirectUrl(requestedHash);
+  window.location.hash = "/login";
+}
+
   async login(email, username, password) {
+    try {
+      const results = await this.authAdapter.login(email, username, password);
+      if (results.token && results.user) {
+        this.appState.setUser(results.user);
+        this.authAdapter.saveToken(results.token)
+
+
+        const savedAddress = this.appState.getRedirectUrl();
+        if (savedAddress) {
+          console.log("Releasing user to:", savedAddress);
+          this.appState.setRedirectUrl(null); // Clear it
+          window.location.hash = savedAddress; 
+        } else {
+          window.location.hash = "/app"; 
+        }
+        
+        return user;
+      }
+    } catch (error) {
+      this.appState.setError(error.message);
+      throw error;
+    }
+  }
+
+    async register(email, username, password, role) {
     try {
       const user = await this.authAdapter.login(email, username, password);
       if (user) {
@@ -16,30 +67,12 @@ export class AuthService {
     } catch (error) {
       console.log("Login not succ:");
       this.appState.setError(error.message);
-      console.log("Login not succ:");
       throw error;
     }
   }
 
 
-  async checkToken() {
-    try {
 
-      const user = await this.authAdapter.getCurrentUser();
-      console.log("CheckToken result:", user);
-      if (user) {
-        this.appState.setUser(user);
-        console.log("AppState Context after update:", this.appState.getContext());
-        return user;
-      }
-      this.appState.setUser(null);
-      return null;
-    } catch (error) {
-        console.log("Not Nice job: ");
-      this.appState.setUser(null);
-      return null;
-    }
-  }
 
   async logout() {
     this.authAdapter.tokenRepository.clearToken();

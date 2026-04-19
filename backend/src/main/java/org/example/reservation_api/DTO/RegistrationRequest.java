@@ -3,16 +3,14 @@ package org.example.reservation_api.DTO;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.Getter;
 
-public record RegistrationRequest(
+@Getter
+public class RegistrationRequest {
+        private String username;
+        private String email;
+        private String password;
+        private String role;
 
 
-        @NotBlank
-        String username,
-
-
-        String email,
-
-        @NotBlank
-        String password
-) {}
+}

@@ -9,15 +9,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
-@Service // Essential! This makes it a Bean.
+@Service
 public class UserService extends BaseService<User, UserRepository> {
-
-    private final PasswordEncoder passwordEncoder;
-
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        super(userRepository);
-        this.passwordEncoder = passwordEncoder;
+    public UserService(UserRepository repository) {
+        super(repository);
     }
-
 }

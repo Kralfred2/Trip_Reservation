@@ -1,16 +1,11 @@
 package org.example.reservation_api.services;
 
-
 import org.example.reservation_api.entities.BaseEntity;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.JpaRepository;
-
+import org.example.reservation_api.repositories.BaseRepository;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
-// T must be a BaseEntity, and ID must be a UUID
-public abstract class BaseService<T extends BaseEntity, R extends JpaRepository<T, UUID>> {
+public abstract class BaseService<T extends BaseEntity, R extends BaseRepository<T>> {
 
     protected final R repository;
 
@@ -20,5 +15,20 @@ public abstract class BaseService<T extends BaseEntity, R extends JpaRepository<
 
     public List<T> findAll() {
         return repository.findAll();
+    }
+
+    /**
+     * The business logic update method.
+     */
+    public T update(UUID id, T updatedData) {
+        // Using your custom 'dbFindById'
+        return repository.dbFindById(id)
+                .map(existingEntity -> {
+                    updatedData.setId(id);
+
+                    // Using your custom 'dbUpdate'
+                    return repository.dbUpdate(updatedData);
+                })
+                .orElseThrow(() -> new RuntimeException("Resource not found with ID: " + id));
     }
 }

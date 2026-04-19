@@ -39,23 +39,39 @@ public class MyCustomBouncer {
         long expiresInSeconds = 3600;
         String jwt = jwtService.generateTimedToken(user, expiresInSeconds);
         System.out.println("Generated JWT: " + jwt);
-        return new LoginResponse(jwt, expiresInSeconds, user.getUsername(), user.getEmail(), "Login successful");
+        return new LoginResponse(
+                jwt,
+                3600,
+                user.getUsername(),
+                user.getEmail(),
+                user.getRole().toString(),
+                user.getPermissions(), // Send the array of strings to the frontend
+                "Login successful"
+        );
     }
 
     public LoginResponse checkToken(String tokenString) {
         Token responceToken = jwtService.isTokenValid(tokenString);
 
         if (responceToken.getOwnerId() == null) {
-            return new LoginResponse(null, 0, null, null, responceToken.getMessage());
+            return new LoginResponse(null, 0, null, null,null,null,  responceToken.getMessage());
         } else {
             // Use findById safely
             return userRepository.findById(responceToken.getOwnerId())
                     .map(user -> {
                         long expiresInSeconds = 3600;
                         String jwt = jwtService.generateTimedToken(user, expiresInSeconds);
-                        return new LoginResponse(jwt, expiresInSeconds, user.getUsername(), user.getEmail(), "Login successful");
+                        return new LoginResponse(
+                                jwt,
+                                3600,
+                                user.getUsername(),
+                                user.getEmail(),
+                                user.getRole().toString(),
+                                user.getPermissions(), // Send the array of strings to the frontend
+                                "Login successful"
+                        );
                     })
-                    .orElseGet(() -> new LoginResponse(null, 0, null, null, "User no longer exists"));
+                    .orElseGet(() -> new LoginResponse(null, 0, null, null,null,null, "User no longer exists"));
         }
     }
 }
