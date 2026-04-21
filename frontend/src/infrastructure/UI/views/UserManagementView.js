@@ -5,30 +5,38 @@ export class UserManagementView {
   constructor(appState, userRepository) {
     this.appState = appState;
     this.userRepository = userRepository;
+
   }
 
   render() {
     const container = document.createElement("div");
+    if(this.userRepository == null){
+          console.error("View Error:");
+    }
     container.innerHTML = "<h1>User Management</h1><div id='user-list'>Loading users...</div>";
 
-    this.loadUsers(container);
+     this.loadUsers(container);
 
     return container;
   }
 
-  async loadUsers(container) {
+async loadUsers(container) {
     try {
-      const users = await this.userRepository.findAll(); 
+      const data = await this.userRepository.getAllUsers();
+      
+      // If the API returns { users: [...] } instead of [...], extract the array
+      const users = Array.isArray(data) ? data : (data.users || []);
+
       const listElement = container.querySelector("#user-list");
       listElement.innerHTML = ""; 
 
       users.forEach(userData => {
-        // Create the component for each user
         const userComp = new UserComponent(userData, this.appState);
         listElement.appendChild(userComp.render());
       });
     } catch (error) {
+      console.error("View Error:", error);
       container.innerHTML = `<p style="color:red">Error loading users: ${error.message}</p>`;
     }
-  }
+}
 }

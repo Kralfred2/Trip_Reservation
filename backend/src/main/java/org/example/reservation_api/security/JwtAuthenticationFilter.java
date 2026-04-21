@@ -1,5 +1,6 @@
 package org.example.reservation_api.security;
 
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,6 +20,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -27,13 +29,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final TokenRepository tokenRepository;
 
-
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
 
-        // 1. Get the Authorization Header
         final String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -41,55 +41,36 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        // 2. Extract the string
         final String jwt = authHeader.substring(7);
 
-        // 3. Technical & Expiry Check via your JwtService
-        Token tokenData = jwtService.isTokenValid(jwt);
+        try {
+            Claims claims = jwtService.extractAllClaims(jwt);
+            String username = claims.getSubject();
+            String tokenIdString = claims.getId();
 
-        if (tokenData.getMessage().equals("CORRECT")) {
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            // 4. DATABASE CHECK: Is this specific Token ID revoked or missing?
-            // Since we stored the ID in the jti claim, we check the DB
-            boolean isBlacklisted = !tokenRepository.existsById(tokenData.getId());
+                var tokenData = tokenRepository.findById(UUID.fromString(tokenIdString)).orElse(null);
 
-            if (!isBlacklisted) {
-                // 5. Tell Spring Security the user is authenticated
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        tokenData.getOwnerId(), // The Principal
-                        null,
-                        new ArrayList<>() // Add roles/authorities here if you have them
-                );
+                if (tokenData != null) {
 
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                    List<SimpleGrantedAuthority> authorities = jwtService.getAuthorities(jwt);
+
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            username,
+                            null,
+                            authorities
+                    );
+
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
             }
+        } catch (Exception e) {
+            logger.error("Could not set user authentication", e);
         }
-
-        final String username;
-
-
-        username = jwtService.extractUsername(jwt); // <--- HERE IS YOUR USERNAME
 
         filterChain.doFilter(request, response);
-
-
-        if (jwtService.isTokenValid(jwt) != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-
-            // Extract the authorities from the token string
-            List<SimpleGrantedAuthority> authorities = jwtService.getAuthorities(jwt);
-
-            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                    username,
-                    null,
-                    authorities // <--- THIS IS THE KEY PART
-            );
-
-            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-            // Hand it to Spring
-            SecurityContextHolder.getContext().setAuthentication(authToken);
-        }
     }
-
 }

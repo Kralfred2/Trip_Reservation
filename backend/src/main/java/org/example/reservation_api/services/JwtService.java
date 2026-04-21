@@ -37,8 +37,7 @@ public class JwtService {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + 1000L * 60 * timeInMin);
         Token tokenEntity = new Token(user.getId(), expiry, "ACTIVE");
-        tokenEntity = tokenRepository.save(tokenEntity); // Now tokenEntity.getId() is populated!
-
+        tokenEntity = tokenRepository.save(tokenEntity);
         return Jwts.builder()
                 .header().add("typ", "JWT").and()
                 .id(tokenEntity.getId().toString())
@@ -106,7 +105,7 @@ public class JwtService {
         }
 
         if (role != null) {
-            authList.add(new SimpleGrantedAuthority("ROLE_" + role));
+            authList.add(new SimpleGrantedAuthority(role));
         }
 
         return authList;

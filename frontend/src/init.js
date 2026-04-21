@@ -25,7 +25,7 @@ const appState = new App();
 
 
 const authService = new AuthService(userRepo, tokenRepo ,appState)
-const viewFactory = new ViewFactory(authService, appState);
+const viewFactory = new ViewFactory(authService, appState, userRepo);
 const appRoutes = getRoutes(viewFactory);
 
 

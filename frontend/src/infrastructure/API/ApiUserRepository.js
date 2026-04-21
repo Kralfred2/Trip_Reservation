@@ -40,20 +40,23 @@ const data = await this.request("/api/auth/validate", {
     }
     });
 
-  return data.ok ? data.json() : null;
+      return {
+        user: new User({
+            id: data.id,
+            username: data.username,
+            email: data.email,
+            role: data.role,
+            permissions: data.permissions
+        }),
+        token: new Token(tokenString, data.token.expiresAt || data.expiresAt)
+    };
 }
 
 async getAllUsers() {
-    const response = await fetch(`${this.baseUrl}/api/users`, {
-        method: "GET",
-        headers: this.getHeaders() // Includes your Bearer token
+    // FIX: Use the inherited request helper. 
+    // This is why you don't see a network request: the previous code crashed here.
+    return await this.request("/api/users", {
+        method: "GET"
     });
-
-    if (!response.ok) throw new Error("Failed to fetch");
-
-    const usersArray = await response.json(); 
-    
-    // Now you have an array of objects you can use in your UI
-    return usersArray; 
-}
+  }
 }

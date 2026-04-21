@@ -16,7 +16,6 @@ export class UserComponent {
 
     const actions = document.createElement("div");
 
-    // Check permissions dynamically
     if (this.appState.hasPermission("can_modify_users")) {
       const editBtn = document.createElement("button");
       editBtn.innerText = "Modify";

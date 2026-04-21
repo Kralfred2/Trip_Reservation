@@ -8,22 +8,22 @@ export class AuthService {
     }
 
 
-    async applyAuthentication(user, tokenValue) {
+async applyAuthentication(userObject, tokenObject) {
+        // 1. Update UI State
+        this.appState.setUser(userObject);
 
-       
-  
-        console.warn("updating token 1  " + tokenValue);
-    
-       console.warn("updating token 1  " + JSON.stringify(user));
-      this.appState.setUser(user)
-
-        // 3. Update Storage (Persistence)
-        if (tokenValue) {
-          console.warn("saving token  22 " + JSON.stringify(tokenValue));
-          this.userRepository.setToken(tokenValue);
-          this.tokenRepository.saveToken(tokenValue);
+        if (tokenObject) {
+            // Extract string for the Network Layer (BaseApiRepository)
+            const tokenString = typeof tokenObject === 'object' ? tokenObject.value : tokenObject;
+            
+            // 2. Update Network Layer
+            this.userRepository.setToken(tokenString);
+            
+            // 3. Update Persistence Layer
+            this.tokenRepository.saveToken(tokenObject);
         } else {
             this.tokenRepository.clearToken();
+            this.userRepository.setToken(null);
         }
     }
 
@@ -33,7 +33,7 @@ export class AuthService {
         const result = await this.userRepository.login(email, username, password);
 
         await this.applyAuthentication(result.user, result.token);
-        
+
         window.location.hash = "/home";
     } catch (error) {
         console.error("Login Error:", error.message);
@@ -43,16 +43,15 @@ export class AuthService {
 
 
 async handleUnauthorizedAccess() {
-    const tokenValue = this.tokenRepository.getToken(); 
+    const tokenObject = this.tokenRepository.getToken(); 
     
-console.warn("Token " + JSON.stringify(tokenValue));
-    // ONLY try to validate if the token string actually exists
-    if (tokenValue && tokenValue !== "undefined") { 
+console.warn("Token " + JSON.stringify(tokenObject));
+    if (tokenObject && tokenObject !== "undefined") { 
         try {
              
-            const user = await this.userRepository.validateToken(tokenValue);
-            if (user) {
-                this.applyAuthentication(user, tokenValue);
+            const response = await this.userRepository.validateToken(tokenObject.value);
+            if (response) {
+                this.applyAuthentication(response.user, response.token);
                 return;
             }
         } catch (e) {

@@ -9,18 +9,18 @@ export class BaseApiRepository extends UserRepository {
         this.token = null;
     }
 
-    setToken(token) {
-        console.warn("updating token setToken: " + JSON.stringify(token));
-        this.token = token;
-    }
+setToken(token) {
+    // If it's an object, extract the value string; otherwise, use the string directly
+    const tokenString = (token && typeof token === 'object') ? token.value : token;
+    
+    console.warn("BaseRepo: Storing raw token string: " + tokenString?.substring(0, 10) + "...");
+    this.token = tokenString;
+}
 
-    /**
-     * Core helper to build and send requests
-     */
     async request(path, options = {}) {
         const url = `${this.baseUrl}${path}`;
         
-        // Merge provided headers with standard JSON and Auth headers
+
         const headers = {
             "Content-Type": "application/json",
             ...options.headers
@@ -35,7 +35,6 @@ export class BaseApiRepository extends UserRepository {
             headers: headers
         });
 
-        // Basic error handling for 401, 403, 500 etc.
         if (!response.ok) {
             const errorBody = await response.json().catch(() => ({}));
             throw new Error(errorBody.message || `API Error: ${response.status}`);

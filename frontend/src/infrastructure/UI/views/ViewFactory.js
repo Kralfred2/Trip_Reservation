@@ -6,9 +6,10 @@ import { HomeView } from './HomeView.js'
 import { UserManagementView } from './UserManagementView.js';
 
 export class ViewFactory {
-  constructor(authService, appState) {
+  constructor(authService, appState, userRepository) {
     this.authService = authService;
     this.appState = appState; 
+    this.userRepository = userRepository;
   }
 
   getLoginView() {
