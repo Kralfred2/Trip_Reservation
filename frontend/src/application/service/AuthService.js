@@ -9,17 +9,18 @@ export class AuthService {
 
 
 async applyAuthentication(userObject, tokenObject) {
-        // 1. Update UI State
+    if(this.appState.getRedirectUrl() != null){
+     window.location.hash = this.appState.getRedirectUrl();
+     console.warn("Token expired or invalid ", this.appState.getRedirectUrl());
+    }
         this.appState.setUser(userObject);
 
         if (tokenObject) {
-            // Extract string for the Network Layer (BaseApiRepository)
             const tokenString = typeof tokenObject === 'object' ? tokenObject.value : tokenObject;
             
-            // 2. Update Network Layer
+
             this.userRepository.setToken(tokenString);
             
-            // 3. Update Persistence Layer
             this.tokenRepository.saveToken(tokenObject);
         } else {
             this.tokenRepository.clearToken();
@@ -66,7 +67,12 @@ console.warn("Token " + JSON.stringify(tokenObject));
 }
 
     logout() {
-        this.applyAuthentication(null, null);
+        this.tokenRepository.clearToken();
         window.location.hash = "/login";
+        this.applyAuthentication(null, null);
+        
+    }
+    async register(email, username, password){
+       console.error("Login Error:" + this.userRepository.register(email, username, password)); 
     }
 }

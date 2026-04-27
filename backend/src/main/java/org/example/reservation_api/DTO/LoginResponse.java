@@ -1,6 +1,7 @@
 package org.example.reservation_api.DTO;
 
 
+import java.util.List;
 import java.util.Set;
 
 public record LoginResponse(
@@ -9,6 +10,6 @@ public record LoginResponse(
         String username,
         String email,
         String role,
-        Set<String> permissions,
+        boolean canCheckOtherUsers,
         String message
 ) {}

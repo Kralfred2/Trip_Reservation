@@ -1,5 +1,6 @@
 // infrastructure/UI/views/UserManagementView.js
 import { UserComponent } from '../components/UserComponent.js';
+import { UserSettingsModal } from '../components/UserSettingsModal.js';
 
 export class UserManagementView {
   constructor(appState, userRepository) {
@@ -31,7 +32,8 @@ async loadUsers(container) {
       listElement.innerHTML = ""; 
 
       users.forEach(userData => {
-        const userComp = new UserComponent(userData, this.appState);
+        // Inside UserManagementView.js loop:
+        const userComp = new UserComponent(userData, new UserSettingsModal());
         listElement.appendChild(userComp.render());
       });
     } catch (error) {

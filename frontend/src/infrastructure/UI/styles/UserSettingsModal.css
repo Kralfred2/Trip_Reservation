@@ -1,0 +1,160 @@
+/* --- Base Overlay & Centering --- */
+.modal-overlay {
+    position: fixed;
+    top: 0; 
+    left: 0;
+    width: 100vw; 
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.75); /* Darken background for focus */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 12px;
+    min-width: 400px;
+    max-width: 500px;
+    
+    /* FIX: Limit height and use flex to manage internal space */
+    max-height: 90vh; 
+    display: flex;
+    flex-direction: column;
+    
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    color: #333333;
+}
+
+/* --- Header Section --- */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 10px;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.4rem;
+    color: #222;
+}
+
+.close-x {
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    cursor: pointer;
+    color: #999;
+}
+
+#modal-form {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto; /* Enable vertical scrolling */
+    padding-right: 10px; /* Space for scrollbar */
+    flex-grow: 1;      /* Take up available space */
+}
+
+/* Optional: Make the scrollbar look cleaner */
+#modal-form::-webkit-scrollbar {
+    width: 6px;
+}
+#modal-form::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+}
+.section-title {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    color: #007bff; /* Primary color for headers */
+    margin: 10px 0 5px 0;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
+
+/* --- Permissions Container --- */
+.permissions-grid {
+    display: flex;
+    flex-direction: column; /* This fixes the horizontal squishing */
+    align-items: stretch;
+    gap: 12px;
+    padding: 10px;
+    background: #fdfdfd;
+    border: 1px solid #eee;
+    border-radius: 8px;
+}
+
+/* --- Rows (Checkbox Style) --- */
+.perm-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #f1f1f1;
+}
+
+.perm-row:last-child {
+    border-bottom: none;
+}
+
+/* --- Columns (Text/Select Style) --- */
+.perm-column {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px 0;
+}
+
+/* --- Inputs & Labels --- */
+.modal-content label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #444;
+}
+
+.modal-content input[type="text"],
+.modal-content input[type="number"],
+.modal-content select {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    width: 100%; 
+    box-sizing: border-box;
+    font-size: 1rem;
+    background-color: #fff;
+    color: #333;
+}
+
+/* --- Action Buttons --- */
+.modal-actions {
+    display: flex;
+    flex-direction: column; /* Stacked buttons like your screenshot */
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.save-btn {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.cancel-btn {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.save-btn:hover { background: #0056b3; }
+.cancel-btn:hover { background: #5a6268; }

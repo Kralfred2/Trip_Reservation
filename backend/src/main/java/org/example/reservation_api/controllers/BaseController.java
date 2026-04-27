@@ -31,6 +31,7 @@ public abstract class BaseController<T extends BaseEntity, S extends BaseService
         return ResponseEntity.ok(updatedEntity);
     }
 
+
     @GetMapping("/ids")
     public List<UUID> getAllIds() {
         return service.findAll().stream()

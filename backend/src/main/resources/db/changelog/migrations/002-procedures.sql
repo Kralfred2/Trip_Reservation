@@ -14,10 +14,9 @@ BEGIN
     RETURNING id INTO v_user_id;
 
     -- 2. Insert default permissions for the new user
-    INSERT INTO user_permissions (user_id, permission)
+    INSERT INTO user_permissions (id, user_id, permission_name, access_level ,target_id)
     VALUES
-        (v_user_id, 'read_own_profile'),
-        (v_user_id, 'access_basic_features');
+        (gen_random_uuid(), v_user_id, 'DEFAULT', v_user_id);
 END;
 $$;
 

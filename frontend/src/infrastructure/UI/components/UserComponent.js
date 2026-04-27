@@ -1,37 +1,43 @@
 // infrastructure/UI/components/UserComponent.js
+import { UserSettingsModal } from './UserSettingsModal.js';
+
 export class UserComponent {
-  constructor(user, appState) {
-    this.user = user; 
-    this.appState = appState;
-  }
-
-  render() {
-    const card = document.createElement("div");
-    card.className = "user-card";
-    card.style = "border: 1px solid #ccc; padding: 10px; margin: 5px; display: flex; justify-content: space-between;";
-
-    const info = document.createElement("div");
-    info.innerHTML = `<strong>${this.user.username}</strong> (${this.user.email})`;
-    card.appendChild(info);
-
-    const actions = document.createElement("div");
-
-    if (this.appState.hasPermission("can_modify_users")) {
-      const editBtn = document.createElement("button");
-      editBtn.innerText = "Modify";
-      editBtn.onclick = () => console.log(`Editing user ${this.user.id}`);
-      actions.appendChild(editBtn);
+    constructor(userData, userSettingsModal) {
+        this.userData = userData;
+        this.userSettingsModal = userSettingsModal;
     }
 
-    if (this.appState.hasPermission("can_delete_users")) {
-      const deleteBtn = document.createElement("button");
-      deleteBtn.innerText = "Delete";
-      deleteBtn.style.color = "red";
-      deleteBtn.onclick = () => console.log(`Deleting user ${this.user.id}`);
-      actions.appendChild(deleteBtn);
-    }
+    render() {
+        const card = document.createElement("div");
+        card.className = "user-card";
+        
+        card.innerHTML = `
+            <div class="user-info">
+                <h3>${this.userData.username}</h3>
+                <p>${this.userData.id}</p>
+            </div>
+            <button class="edit-settings-btn">Edit Settings</button>
+        `;
 
-    card.appendChild(actions);
-    return card;
-  }
+        if(this.userData.hasMoreDetails){
+        const editBtn = card.querySelector(".edit-settings-btn");
+
+
+        editBtn.onclick = () => {
+    // 1. Create instance
+    console.log("clicked");
+    const modal = new UserSettingsModal(this.userData, async (id, data) => {
+        await this.userRepository.updateUser(id, data);
+    });
+
+    // 2. Call render() to get the HTML Element
+    const modalElement = modal.render();
+
+    // 3. CRITICAL: Append it to the live DOM
+    document.body.appendChild(modalElement);
+};
+        }
+
+        return card;
+    }
 }

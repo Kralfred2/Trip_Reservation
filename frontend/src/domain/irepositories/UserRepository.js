@@ -19,4 +19,10 @@ export class UserRepository {
   async getAllUsers(){
     throw new Error("Not implemented");
   }
+  async register(){
+    throw new Error("Not implemented");
+  }
+  async adminUpdateUser(){
+    
+  }
 }

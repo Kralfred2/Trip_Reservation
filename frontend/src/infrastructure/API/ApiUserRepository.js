@@ -53,10 +53,30 @@ const data = await this.request("/api/auth/validate", {
 }
 
 async getAllUsers() {
-    // FIX: Use the inherited request helper. 
-    // This is why you don't see a network request: the previous code crashed here.
     return await this.request("/api/users", {
         method: "GET"
     });
   }
+
+  async adminUpdateUser(userId, userData) {
+    return await this.request(`/api/users/${userId}/admin`, {
+        method: "PUT",
+        body: JSON.stringify(userData)
+    });
+}
+
+  async register(email, username, password) {
+    const data = await this.request("/api/auth/register", {
+        method: "POST",
+        body: JSON.stringify({ email, username, password })
+    });
+
+
+    const tokenString = JSON.Stringify(data);
+
+
+    return {
+        tokenString
+    };
+}
 }

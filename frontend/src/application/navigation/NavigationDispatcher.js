@@ -18,18 +18,31 @@ export class NavigationDispatcher {
     this.router = router;
   }
 
-  handleStateChange() {
+  // NavigationDispatcher.js
+handleStateChange() {
     const isAuth = this.appState.isAuthenticated();
-    const currentPath = window.location.hash.replace("#", "") || "/home";
+    const currentHash = window.location.hash || "#/home";
+    const currentPath = currentHash.replace("#", "");
+
+    // Guard: If we are already on the login page and NOT authenticated, stop.
+    if (!isAuth && currentPath === "/login") {
+        return; 
+    }
+
+          console.log("Current path:  " + currentPath);
+      console.log("Current hash:  " + currentHash);
 
     if (isAuth && (currentPath === "/login" || currentPath === "/register")) {
-      window.location.hash = "/app";
-    } else if (!isAuth && currentPath === "/app") {
-      window.location.hash = "/login";
-    } else {
-      this.reDispatch();
+
+        window.location.hash = "/app";
+    } else if (!isAuth) {
+      this.appState.setRedirectUrl(currentPath);
+        window.location.hash = "/login";
+    }  
+    else {
+        this.reDispatch();
     }
-  }
+}
 
   reDispatch() {
     if (this.router) {

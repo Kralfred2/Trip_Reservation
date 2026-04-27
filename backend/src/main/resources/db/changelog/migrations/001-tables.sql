@@ -7,11 +7,19 @@ CREATE TABLE IF NOT EXISTS app_user (
                                         role VARCHAR(20) NOT NULL
 );
 
+
+
 CREATE TABLE IF NOT EXISTS user_permissions (
-                                                user_id UUID NOT NULL,
-                                                permission VARCHAR(255) NOT NULL,
-                                                CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES app_user(id) ON DELETE CASCADE,
-                                                PRIMARY KEY (user_id, permission)
+                                  id UUID PRIMARY KEY,
+                                  user_id UUID NOT NULL,
+                                  permission_name VARCHAR(100) NOT NULL, -- e.g., 'email', 'username', 'activate'
+                                  access_level VARCHAR(20) NOT NULL,    -- e.g., 'VIEW', 'MODIFY'
+                                  target_id UUID,                       -- NULL for global, or ID of a specific entity
+    -- Ensures a user doesn't have duplicate permission entries for the same target
+                                  CONSTRAINT unique_user_perm_target UNIQUE (user_id, permission_name, target_id),
+
+    -- Foreign key to your app_user table
+                                  CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES app_user(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS user_token (
