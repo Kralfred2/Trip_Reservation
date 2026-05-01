@@ -29,11 +29,9 @@ public class RegistrationService {
         newUser.setUsername(request.getUsername());
         newUser.setEmail(request.getEmail());
 
-        // 1. Encode the password so the Bouncer can read it later
         newUser.setPassword(passwordEncoder.encode(request.getPassword()));
 
 
-        // 3. Add admin permissions if the role is ADMIN
         Set<String> perms = new HashSet<>();
         perms.add("read_own_profile");
 

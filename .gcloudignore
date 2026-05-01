@@ -1,0 +1,25 @@
+# Ignore Git metadata
+.git
+.gitignore
+
+# Ignore local Gradle build artifacts (The cloud build will make its own)
+**/build/
+**/.gradle/
+
+# Ignore Frontend dependencies and build files
+**/node_modules/
+**/dist/
+**/.next/
+
+# Ignore IDE settings
+.idea/
+.vscode/
+*.swp
+
+# Ignore environment secrets (Crucial for security!)
+.env
+*.pem
+*.key
+
+# Ignore the gcloudignore file itself
+.gcloudignore

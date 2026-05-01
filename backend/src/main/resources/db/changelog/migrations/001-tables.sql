@@ -48,17 +48,8 @@ CREATE TABLE IF NOT EXISTS audit_log (
                                          content JSONB
 );
 
--- Domain Specific Tables (Rooms & Roles)
-CREATE TABLE IF NOT EXISTS ref_room_type (
-                                             code VARCHAR(10) PRIMARY KEY,
-                                             description TEXT NOT NULL
-);
 
-CREATE TABLE IF NOT EXISTS app_room (
-                                        id UUID PRIMARY KEY,
-                                        room_number VARCHAR(10) NOT NULL,
-                                        type_code VARCHAR(10) REFERENCES ref_room_type(code)
-);
+
 
 CREATE TABLE IF NOT EXISTS user_role (
                                          user_id UUID REFERENCES app_user(id),
@@ -72,26 +63,7 @@ CREATE TABLE IF NOT EXISTS user_profile (
                                             phone_number VARCHAR(20)
 );
 
--- Reservations & Finance
-CREATE TABLE IF NOT EXISTS app_reservation (
-                                               id UUID PRIMARY KEY,
-                                               user_id UUID REFERENCES app_user(id),
-                                               room_id UUID REFERENCES app_room(id),
-                                               start_date DATE NOT NULL,
-                                               end_date DATE NOT NULL
-);
 
-CREATE TABLE IF NOT EXISTS room_amenity (
-                                            room_id UUID PRIMARY KEY REFERENCES app_room(id),
-                                            details JSONB
-);
-
-CREATE TABLE IF NOT EXISTS app_invoice (
-                                           id UUID PRIMARY KEY,
-                                           reservation_id UUID REFERENCES app_reservation(id),
-                                           amount DECIMAL(10, 2),
-                                           is_paid BOOLEAN DEFAULT FALSE
-);
 
 -- Security
 CREATE TABLE IF NOT EXISTS blacklisted_token (

@@ -27,15 +27,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @RequiredArgsConstructor
 public class SecurityConfig implements WebMvcConfigurer {
 
-    private int minPasswordLength = 8;
-    private int maxUsernameLength = 50;
-    private int minUsernameLength = 3;
-
     private final JwtAuthenticationFilter jwtAuthFilter;
 
-    // Change the type here to the Interface (org.springframework.security.core.userdetails.UserDetailsService)
     private final UserDetailsService guestListManager;
-
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
@@ -80,8 +74,8 @@ public class SecurityConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**") // Apply to all endpoints
-                .allowedOrigins("FRONTEND_URL")
+        registry.addMapping("/**")
+                .allowedOrigins(allowedOrigin)
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);

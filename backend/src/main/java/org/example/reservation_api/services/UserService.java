@@ -28,13 +28,10 @@ public class UserService extends BaseService<User, UserRepository> {
     }
     public User adminUpdateUser(UUID targetId, User updatedData) {
         return repository.dbFindById(targetId).map(existingUser -> {
-            // 1. Basic Info
             existingUser.setUsername(updatedData.getUsername());
             existingUser.setEmail(updatedData.getEmail());
             existingUser.setRole(updatedData.getRole());
 
-            // 2. Sync Permissions
-            // We clear and re-add or use a map to update to avoid "orphan" records
             syncPermissions(existingUser, updatedData.getPermissions());
 
             return repository.dbUpdate(existingUser);
@@ -112,7 +109,6 @@ public class UserService extends BaseService<User, UserRepository> {
             if (canModify || actor.getRole().toString().equals("ROLE_ADMIN")) {
                 applyUpdate(target, field, newValue);
             } else {
-                // Silently skip or throw error
                 System.out.println("Access Denied for field: " + field);
             }
         });
@@ -134,7 +130,6 @@ public class UserService extends BaseService<User, UserRepository> {
             case "email" -> target.setEmail((String) value);
             case "username" -> target.setUsername((String) value);
             case "role" -> target.setRole(UserRole.valueOf((String) value));
-            // Add other fields as needed
         }
     }
 
