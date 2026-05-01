@@ -109,7 +109,7 @@ public class UserService extends BaseService<User, UserRepository> {
             // Check: Does the actor have a permission record for this field on this target with writable = true?
             boolean canModify = canPerform(actor, targetId, field, true);
 
-            if (canModify) {
+            if (canModify || actor.getRole().toString().equals("ROLE_ADMIN")) {
                 applyUpdate(target, field, newValue);
             } else {
                 // Silently skip or throw error
@@ -118,6 +118,10 @@ public class UserService extends BaseService<User, UserRepository> {
         });
 
         return repository.dbUpdate(target);
+    }
+
+    public void updateUserTargetRelationships(UUID id, List<UUID> targetIds){
+
     }
     public boolean hasPermission(User user, String action, UUID targetId) {
         return user.getPermissions().stream()

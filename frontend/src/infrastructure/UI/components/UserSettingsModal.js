@@ -1,43 +1,37 @@
+import { StyleLoader } from '../utils/StyleLoader.js'; // Adjust path as needed
+
 export class UserSettingsModal {
-    static loadStyles() {
-        if (document.getElementById('user-modal-css')) return;
-
-        const link = document.createElement('link');
-        link.id = 'user-modal-css';
-        link.rel = 'stylesheet';
-        // Adjust this path relative to your index.html
-        link.href = 'src/infrastructure/UI/styles/UserSettingsModal.css'; 
-        document.head.appendChild(link);
-    }
-
-    constructor(user, onSave) {
-        UserSettingsModal.loadStyles();
+    constructor(user, currentPerms, onSave, fieldGenerator, config) {
+        // Load the specific CSS for this modal
+        StyleLoader.load('src/infrastructure/UI/styles/UserSettingsModal.css');
+        
         this.user = user;
+        this.currentPerms = currentPerms;
         this.onSave = onSave;
+        this.fieldGenerator = fieldGenerator;
+        this.config = config;
     }
 
     render() {
         const overlay = document.createElement("div");
         overlay.className = "modal-overlay";
         
+        // Use the Field Generator and Config to create the HTML
+        const fieldsHtml = Object.keys(this.config).map(key => {
+            const config = this.config[key];
+            const value = this.currentPerms[key];
+            return this.fieldGenerator(key, config, value);
+        }).join('');
+
         overlay.innerHTML = `
             <div class="modal-content">
-                <h2>User Settings</h2>
-                <form id="edit-user-form">
-                    <label>Username</label>
-                    <input type="username" name="username" value="${this.user.username}" required>
-
-                    <label>Email</label>
-                    <input type="email" name="email" value="${this.user.email}" required>
-                    
-                    <label>Role</label>
-                    <select name="role">
-                        <option value="ROLE_USER" ${this.user.role === 'ROLE_USER' ? 'selected' : ''}>User</option>
-                        <option value="ROLE_ADMIN" ${this.user.role === 'ROLE_ADMIN' ? 'selected' : ''}>Admin</option>
-                    </select>
-
+                <h2>Edit Permissions: ${this.user.username}</h2>
+                <form id="modal-form">
+                    <div class="permissions-grid">
+                        ${fieldsHtml}
+                    </div>
                     <div class="modal-actions">
-                        <button type="submit" class="save-btn">Save</button>
+                        <button type="submit" class="save-btn">Save Changes</button>
                         <button type="button" class="cancel-btn">Cancel</button>
                     </div>
                 </form>
@@ -45,14 +39,22 @@ export class UserSettingsModal {
         `;
 
         overlay.querySelector(".cancel-btn").onclick = () => overlay.remove();
-        overlay.querySelector("#edit-user-form").onsubmit = async (e) => {
+        overlay.querySelector("#modal-form").onsubmit = async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
-            await this.onSave(this.user.id, {
-                username: formData.get("username"),
-                email: formData.get("email"),
-                role: formData.get("role")
+            const dataToSave = {};
+
+            // Map form data back to JSON keys
+            Object.keys(this.config).forEach(key => {
+                const type = this.config[key].type;
+                if (type === 'CHECKBOX') {
+                    dataToSave[key] = formData.get(`perm_${key}`) === 'on';
+                } else {
+                    dataToSave[key] = formData.get(`perm_${key}`);
+                }
             });
+
+            await this.onSave(this.user.id, dataToSave);
             overlay.remove();
         };
 

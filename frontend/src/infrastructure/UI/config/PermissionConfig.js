@@ -1,5 +1,5 @@
 export const PERMISSION_CONFIG = {
-    "can_activate": { 
+    "can_modify_permissions": { 
         type: 'CHECKBOX', 
         label: "Account Activation",
         description: "Allows the user to enable or disable accounts."
@@ -9,7 +9,7 @@ export const PERMISSION_CONFIG = {
         label: "Primary Email",
         description: "Directly edit the user's registered email address."
     },
-    "access_tier": { 
+    "role": { 
         type: 'SELECT', 
         label: "System Access Tier", 
         options: ["GUEST", "STAFF", "MANAGER", "EXECUTIVE"],

@@ -68,6 +68,16 @@ public class UserController extends BaseController<User, UserService> {
     public ResponseEntity<User> adminUpdate(@PathVariable UUID id, @RequestBody User entity) {
         return ResponseEntity.ok(service.adminUpdateUser(id, entity));
     }
+    // UserController.java
+    @PutMapping("/{id}/target-permissions")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> updateTargetPermissions(
+            @PathVariable UUID id,
+            @RequestBody List<UUID> targetIds) {
+
+        service.updateUserTargetRelationships(id, targetIds);
+        return ResponseEntity.ok().build();
+    }
 
     @PutMapping("/me")
     @PreAuthorize("isAuthenticated()")

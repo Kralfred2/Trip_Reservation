@@ -25,17 +25,17 @@ async loadUsers(container) {
     try {
       const data = await this.userRepository.getAllUsers();
       
-      // If the API returns { users: [...] } instead of [...], extract the array
+
       const users = Array.isArray(data) ? data : (data.users || []);
 
       const listElement = container.querySelector("#user-list");
       listElement.innerHTML = ""; 
 
-      users.forEach(userData => {
-        // Inside UserManagementView.js loop:
-        const userComp = new UserComponent(userData, new UserSettingsModal());
-        listElement.appendChild(userComp.render());
-      });
+const userListContainer = document.getElementById('user-list');
+users.forEach(user => {
+    const component = new UserComponent(user, this.userRepository);
+container.appendChild(component.render());
+});
     } catch (error) {
       console.error("View Error:", error);
       container.innerHTML = `<p style="color:red">Error loading users: ${error.message}</p>`;

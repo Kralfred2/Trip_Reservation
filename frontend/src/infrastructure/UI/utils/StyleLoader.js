@@ -1,4 +1,4 @@
-// infrastructure/UI/utils/StyleLoader.js
+// src/infrastructure/UI/utils/StyleLoader.js
 
 export class StyleLoader {
     static loadedStyles = new Set();

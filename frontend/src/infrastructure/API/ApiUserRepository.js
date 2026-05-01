@@ -58,6 +58,27 @@ async getAllUsers() {
     });
   }
 
+async getDetailedPermissions(userId) {
+    // Use the 'request' method from BaseApiRepository
+    return await this.request(`/api/users/${userId}/permissions`, {
+        method: "GET"
+    });
+}
+
+async updateSecureSettings(userId, updates) {
+    // Matches @PutMapping("/{id}/secure")
+    return await this.request(`/api/users/${userId}/secure`, {
+        method: "PUT",
+        body: JSON.stringify(updates)
+    });
+}
+
+async getById(userId) {
+    return await this.request(`/api/users/${userId}`, {
+        method: "GET"
+    });
+}
+
   async adminUpdateUser(userId, userData) {
     return await this.request(`/api/users/${userId}/admin`, {
         method: "PUT",
