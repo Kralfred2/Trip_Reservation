@@ -17,19 +17,19 @@ steps:
       - '--search-path=backend/src/main/resources/'
       - 'update'
 
-  # Step 2: Build the Docker Image with a Unique ID
+# Step 2: Build the Docker Image
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'build'
       - '-t'
       - 'gcr.io/$PROJECT_ID/amazing-api:$SHORT_SHA'
-      - '-t'
-      - 'gcr.io/$PROJECT_ID/amazing-api:latest' # Keeps a latest tag for convenience
-      - '-f'
-      - 'Dockerfile'
       - '.'
 
-  # Step 3: Automatically Deploy to Cloud Run in your Region
+  # NEW STEP: Push the image to the registry immediately
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/amazing-api:$SHORT_SHA']
+
+  # Step 3: Deploy to Cloud Run (Now it will find the image!)
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
@@ -39,15 +39,7 @@ steps:
       - '--image'
       - 'gcr.io/$PROJECT_ID/amazing-api:$SHORT_SHA'
       - '--region'
-      - 'europe-central2' # Set your region here
+      - 'europe-central2'
       - '--platform'
       - 'managed'
       - '--allow-unauthenticated'
-
-# Images to be pushed to the registry
-images:
-  - 'gcr.io/$PROJECT_ID/amazing-api:$SHORT_SHA'
-  - 'gcr.io/$PROJECT_ID/amazing-api:latest'
-
-options:
-  logging: CLOUD_LOGGING_ONLY
