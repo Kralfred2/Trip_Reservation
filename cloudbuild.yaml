@@ -5,7 +5,7 @@ steps:
     args: ['build', '-x', 'test']
     dir: 'backend'
 
-  - name: 'liquibase/liquibase'
+  - name: 'liquibase/liquibase:4.25.1'
     env:
       - 'INSTALL_POSTGRESQL=true'
     args:
