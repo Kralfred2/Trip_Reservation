@@ -14,7 +14,7 @@ steps:
       - '--username=${_DB_USER}'
       - '--password=${_DB_PASSWORD}'
       - '--default-schema-name=alfabase_schema'
-      - '--search-path=backend/src/main/resources/db/changelog/'
+      - '--search-path=backend/src/main/resources/'
       - 'update'
 
   # Step 2: Build the Docker Image with a Unique ID
