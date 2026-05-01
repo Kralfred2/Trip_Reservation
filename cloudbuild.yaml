@@ -10,9 +10,10 @@ steps:
       - 'INSTALL_POSTGRESQL=true'
     args:
       - '--changelog-file=backend/src/main/resources/db/changelog/db.changelog-master.xml'
-      - '--url=jdbc:postgresql://${_DB_URL}:${_DB_PORT}/${_DB_NAME}?currentSchema=public'
+      - '--url=jdbc:postgresql://${_DB_URL}:${_DB_PORT}/${_DB_NAME}?currentSchema=alfabase_schema'
       - '--username=${_DB_USER}'
       - '--password=${_DB_PASSWORD}'
+      - '--default-schema-name=alfabase_schema'
       - 'update'
 
   # Step 2: Build the Docker Image with a Unique ID
