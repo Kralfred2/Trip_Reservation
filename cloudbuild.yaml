@@ -6,6 +6,8 @@ steps:
     dir: 'backend'
 
   - name: 'liquibase/liquibase'
+    env:
+      - 'INSTALL_POSTGRESQL=true'
     args:
       - '--changelog-file=backend/src/main/resources/db/changelog/db.changelog-master.xml'
       - '--url=jdbc:postgresql://${_DB_URL}:${_DB_PORT}/${_DB_NAME}'
