@@ -1,9 +1,20 @@
 steps:
+  # Step 1: Build the JAR using Gradle
+  - name: 'gradle:8-jdk21'
+    entrypoint: gradle
+    args: ['build', '-x', 'test']
+    dir: 'backend' # Moves into the backend folder to find build.gradle
+
+  # Step 2: Build the Docker Image
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'build'
       - '-t'
       - 'gcr.io/project-32e135b6-7021-46f3-97a/amazing-api'
       - '-f'
-      - 'Dockerfile'
-      - '.'
+      - 'Dockerfile' # Located in the root
+      - '.'         # Context is the root (so it can see the backend folder)
+    # dir: 'backend' <-- REMOVE this line so Docker can see the root folders
+
+options:
+  logging: CLOUD_LOGGING_ONLY # Fixes the Service Account error
