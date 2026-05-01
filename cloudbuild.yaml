@@ -10,7 +10,7 @@ steps:
       - 'INSTALL_POSTGRESQL=true'
     args:
       - '--changelog-file=backend/src/main/resources/db/changelog/db.changelog-master.xml'
-      - '--url=jdbc:postgresql://${_DB_URL}:${_DB_PORT}/${_DB_NAME}'
+      - '--url=jdbc:postgresql://${_DB_URL}:${_DB_PORT}/${_DB_NAME}?currentSchema=public'
       - '--username=${_DB_USER}'
       - '--password=${_DB_PASSWORD}'
       - 'update'
