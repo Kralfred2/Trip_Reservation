@@ -23,18 +23,19 @@ steps:
     args:
       - '-c'
       - |
-        docker pull gcr.io/$PROJECT_ID/amazing-api:latest || true
+        # Use the new Artifact Registry path
+        docker pull europe-central2-docker.pkg.dev/$PROJECT_ID/amazing-repo/amazing-api:latest || true
         docker build \
-          -t gcr.io/$PROJECT_ID/amazing-api:$SHORT_SHA \
-          -t gcr.io/$PROJECT_ID/amazing-api:latest \
-          --cache-from gcr.io/$PROJECT_ID/amazing-api:latest \
+          -t europe-central2-docker.pkg.dev/$PROJECT_ID/amazing-repo/amazing-api:$SHORT_SHA \
+          -t europe-central2-docker.pkg.dev/$PROJECT_ID/amazing-repo/amazing-api:latest \
+          --cache-from europe-central2-docker.pkg.dev/$PROJECT_ID/amazing-repo/amazing-api:latest \
           -f Dockerfile .
 
-  # Step 4: Explicitly Push the image
+  # Step 4: Push to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/$PROJECT_ID/amazing-api:$SHORT_SHA']
+    args: ['push', 'europe-central2-docker.pkg.dev/$PROJECT_ID/amazing-repo/amazing-api:$SHORT_SHA']
 
-  # Step 5: Automatically Deploy to Cloud Run
+  # Step 5: Deploy to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
@@ -42,7 +43,7 @@ steps:
       - 'deploy'
       - 'amazing-api'
       - '--image'
-      - 'gcr.io/$PROJECT_ID/amazing-api:$SHORT_SHA'
+      - 'europe-central2-docker.pkg.dev/$PROJECT_ID/amazing-repo/amazing-api:$SHORT_SHA'
       - '--region'
       - 'europe-central2'
       - '--platform'
@@ -50,13 +51,12 @@ steps:
       - '--allow-unauthenticated'
 
 images:
-  - 'gcr.io/$PROJECT_ID/amazing-api:$SHORT_SHA'
-  - 'gcr.io/$PROJECT_ID/amazing-api:latest'
+  - 'europe-central2-docker.pkg.dev/$PROJECT_ID/amazing-repo/amazing-api:$SHORT_SHA'
+  - 'europe-central2-docker.pkg.dev/$PROJECT_ID/amazing-repo/amazing-api:latest'
 
 options:
   logging: CLOUD_LOGGING_ONLY
   machineType: 'E2_HIGHCPU_8'
-  # This creates the volume globally so all steps can access it
   volumes:
     - name: 'gradle-cache'
       path: '/root/.gradle'
