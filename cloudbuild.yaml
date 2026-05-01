@@ -1,0 +1,9 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/project-32e135b6-7021-46f3-97a/amazing-api'
+      - '-f'
+      - 'Dockerfile'
+      - '.'
