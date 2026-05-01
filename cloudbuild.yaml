@@ -25,7 +25,7 @@ steps:
     args:
       - '-c'
       - |
-        # Try to pull the previous image to use as a cache source
+        # Pull the latest image to use as a cache source
         docker pull gcr.io/$PROJECT_ID/amazing-api:latest || true
         docker build \
           -t gcr.io/$PROJECT_ID/amazing-api:$SHORT_SHA \
@@ -52,17 +52,15 @@ steps:
       - 'managed'
       - '--allow-unauthenticated'
 
-# This ensures the 'latest' tag is also updated in your registry
+# Images to be pushed to the registry as a final step
 images:
   - 'gcr.io/$PROJECT_ID/amazing-api:$SHORT_SHA'
   - 'gcr.io/$PROJECT_ID/amazing-api:latest'
 
-# Persistent volume for Gradle so it doesn't re-download JARs every time
-volumes:
-  - name: 'gradle-cache'
-    path: '/root/.gradle'
-
 options:
   logging: CLOUD_LOGGING_ONLY
-  # Optional: use a beefier machine to speed up compilation
   machineType: 'E2_HIGHCPU_8'
+  # Correct location for the volume definition
+  volumes:
+    - name: 'gradle-cache'
+      path: '/root/.gradle'
