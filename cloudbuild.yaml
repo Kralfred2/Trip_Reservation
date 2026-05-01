@@ -8,9 +8,9 @@ steps:
   - name: 'liquibase/liquibase'
     args:
       - '--changelog-file=backend/src/main/resources/db/changelog/db.changelog-master.xml'
-      - '--url=${DB_URL}:${DB_PORT}/${DB_NAME}'
-      - '--username=${DB_USER}'
-      - '--password=${DB_PASSWORD}'
+      - '--url=jdbc:postgresql://${_DB_URL}:${_DB_PORT}/${_DB_NAME}'
+      - '--username=${_DB_USER}'
+      - '--password=${_DB_PASSWORD}'
       - 'update'
 
   # Step 2: Build the Docker Image with a Unique ID
