@@ -1,0 +1,31 @@
+steps:
+  - name: 'gradle:8-jdk17'
+    entrypoint: gradle
+    args: ['assemble']
+    dir: 'Trip_Reservation/backend'
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/project-32e135b6-7021-46f3-97a/amazing-api'
+      - '-f'
+      - 'Trip_Reservation/backend/Dockerfile'
+      - '.'
+
+images:
+  - 'gcr.io/project-32e135b6-7021-46f3-97a/amazing-api'
+
+deploy:
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'amazing-api'
+      - '--image'
+      - 'gcr.io/project-32e135b6-7021-46f3-97a/amazing-api'
+      - '--region'
+      - 'europe-west1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'   
