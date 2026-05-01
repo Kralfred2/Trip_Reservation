@@ -4,9 +4,7 @@ steps:
     entrypoint: gradle
     args: ['build', '-x', 'test']
     dir: 'backend'
-    volumes:
-      - name: 'gradle-cache' # This links to the global volume below
-        path: '/root/.gradle' # This is where it mounts inside this container
+    # REMOVED the volumes block from here to stop the conflict
 
   # Step 2: Run Liquibase migrations
   - name: 'liquibase/liquibase:4.25.1'
@@ -58,7 +56,7 @@ images:
 options:
   logging: CLOUD_LOGGING_ONLY
   machineType: 'E2_HIGHCPU_8'
-  # This creates the persistent volume for the entire build
+  # This creates the volume globally so all steps can access it
   volumes:
     - name: 'gradle-cache'
-      path: '/persistent_gradle_storage'
+      path: '/root/.gradle'
