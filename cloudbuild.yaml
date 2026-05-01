@@ -9,7 +9,7 @@ steps:
     env:
       - 'INSTALL_POSTGRESQL=true'
     args:
-      - '--changelog-file=db.changelog-master.xml'
+      - '--changelog-file=db/changelog/db.changelog-master.xml'
       - '--url=jdbc:postgresql://${_DB_URL}:${_DB_PORT}/${_DB_NAME}?currentSchema=alfabase_schema'
       - '--username=${_DB_USER}'
       - '--password=${_DB_PASSWORD}'
