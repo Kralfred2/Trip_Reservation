@@ -52,9 +52,14 @@ steps:
       - '--timeout=300'
       - '--cpu=2'
       - '--memory=1Gi'
-      - '--set-env-vars'
-      - 'DB_HOST=${_DB_URL},DB_PORT=${_DB_PORT},DB_NAME=${_DB_NAME},DB_USERNAME=${_DB_USER},DB_PASSWORD=${_DB_PASSWORD},JWT_SECRET=${_JWT_SECRET},FRONTEND_URL=${_FRONTEND_URL}, SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE=2'
-      
+      - '--set-env-vars=DB_HOST=${_DB_URL}'
+      - '--set-env-vars=DB_PORT=${_DB_PORT}'
+      - '--set-env-vars=DB_NAME=${_DB_NAME}'
+      - '--set-env-vars=DB_USERNAME=${_DB_USER}'
+      - '--set-env-vars=DB_PASSWORD=${_DB_PASSWORD}'
+      - '--set-env-vars=JWT_SECRET=${_JWT_SECRET}'
+      - '--set-env-vars=FRONTEND_URL=${_FRONTEND_URL}'
+      - '--set-env-vars=SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE=2'
 
 images:
   - 'europe-central2-docker.pkg.dev/$PROJECT_ID/amazing-repo/amazing-api:$SHORT_SHA'
