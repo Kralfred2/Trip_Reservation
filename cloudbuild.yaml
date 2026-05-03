@@ -52,6 +52,9 @@ steps:
       - '--timeout=300'
       - '--cpu=2'
       - '--memory=1Gi'
+      - '--set-env-vars'
+      - 'DB_HOST=${_DB_URL},DB_PORT=${_DB_PORT},DB_NAME=${_DB_NAME},DB_USER=${_DB_USER},DB_PASSWORD=${_DB_PASSWORD}'
+      - '--add-cloudsql-instances=project-32e135b6-7021-46f3-97a:europe-central2:your-instance-name'
 
 images:
   - 'europe-central2-docker.pkg.dev/$PROJECT_ID/amazing-repo/amazing-api:$SHORT_SHA'
