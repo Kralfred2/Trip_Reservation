@@ -22,6 +22,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.util.Arrays;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -83,8 +85,10 @@ public class SecurityConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-
-        String[] origins = allowedOrigins.split(",");
+        // Trim each origin to remove accidental whitespace or newlines
+        String[] origins = Arrays.stream(allowedOrigins.split(","))
+                .map(String::trim)
+                .toArray(String[]::new);
 
         registry.addMapping("/**")
                 .allowedOrigins(origins)
