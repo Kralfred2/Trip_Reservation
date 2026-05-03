@@ -58,7 +58,8 @@ public class SecurityConfig implements WebMvcConfigurer {
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html", // Added this
-                                "/swagger-resources/**" // Added this
+                                "/swagger-resources/**",
+                                "/swagger"
                         ).permitAll()
 
                         .requestMatchers(HttpMethod.GET, "/api/users").hasAnyAuthority("view_users", "ROLE_ADMIN", "ADMIN")
