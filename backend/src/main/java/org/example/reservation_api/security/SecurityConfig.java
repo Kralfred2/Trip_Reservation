@@ -53,7 +53,13 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/api/auth/**", "/v3/api-docs/**", "/swagger-ui/**").permitAll()
+                        .requestMatchers(
+                                "/api/auth/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html", // Added this
+                                "/swagger-resources/**" // Added this
+                        ).permitAll()
 
                         .requestMatchers(HttpMethod.GET, "/api/users").hasAnyAuthority("view_users", "ROLE_ADMIN", "ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/users/*/modify").hasAuthority("can_modify_users")
@@ -70,12 +76,15 @@ public class SecurityConfig implements WebMvcConfigurer {
     }
 
     @Value("${FRONTEND_URL}")
-    private String allowedOrigin;
+    private String allowedOrigins;
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
+
+        String[] origins = allowedOrigins.split(",");
+
         registry.addMapping("/**")
-                .allowedOrigins(allowedOrigin)
+                .allowedOrigins(origins)
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);
