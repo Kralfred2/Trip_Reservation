@@ -17,7 +17,7 @@ const isDevelopment = false;
 const tokenRepo = new CookieTokenRepository();
 const userRepo = isDevelopment 
     ? new MockApiUserRepository() 
-    : new ApiUserRepository(CONFIG.API_BASE_URL);
+    : new ApiUserRepository(CONFIG.BACKEND_URL);
 
 
 
