@@ -1,5 +1,4 @@
 
-
 CREATE OR REPLACE VIEW v_user_access_summary AS
 SELECT
     up.user_id AS actor_id,
