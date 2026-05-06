@@ -44,7 +44,6 @@ public class JwtService {
                 .subject(user.getUsername())
                 .claim("userId", user.getId().toString())
                 .claim("authorities", user.getPermissions())
-                .claim("role", user.getRole().name())
                 .issuedAt(now)
                 .expiration(expiry)
                 .signWith(getSignInKey())

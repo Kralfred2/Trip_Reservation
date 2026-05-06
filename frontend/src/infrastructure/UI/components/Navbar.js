@@ -43,6 +43,18 @@ export class Navbar {
         };
         actions.appendChild(adminLink);
       }
+      if (user.role === 'ROLE_ADMIN' || user.permissions.includes('view_logs')) {
+    const logsLink = document.createElement("a");
+    logsLink.textContent = "Logs";
+    logsLink.href = "#";
+    logsLink.style.marginRight = "20px";
+    logsLink.style.color = "#ecf0f1";
+    logsLink.onclick = (e) => {
+      e.preventDefault();
+      this.navigationDispatcher.dispatch("/admin/view/logs");
+    };
+    actions.appendChild(logsLink);
+  }
 
       const userInfo = document.createElement("span");
 

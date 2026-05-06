@@ -2,6 +2,7 @@ package org.example.reservation_api.controllers;
 
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.example.reservation_api.DTO.RegistrationRequest;
 import org.example.reservation_api.DTO.UserListResponse;
 import org.example.reservation_api.entities.User;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 @RestController
@@ -28,12 +30,12 @@ public class UserController extends BaseController<User, UserService> {
     }
 
     @GetMapping("/accessible")
-    public ResponseEntity<List<UserListResponse>> getAccessibleUsers(Authentication authentication) {
+    public ResponseEntity<Set<UserListResponse>> getAccessibleUsers(Authentication authentication) {
         // Get the logged-in user (Actor)
         User actor = (User) authentication.getPrincipal();
 
         assert actor != null;
-        List<UserListResponse> users = service.getAccessibleUsersSummary(actor);
+        Set<UserListResponse> users = service.getAccessibleUsersSummary(actor);
         return ResponseEntity.ok(users);
     }
     @GetMapping("/swagger")
@@ -47,18 +49,7 @@ public class UserController extends BaseController<User, UserService> {
         System.out.println("User Authorities: " + auth.getAuthorities());
         return super.getAll();
     }
-    @PutMapping("/{id}/secure")
-    public ResponseEntity<User> updateSecure(
-            @PathVariable UUID id,
-            @RequestBody Map<String, Object> updates,
-            Authentication authentication) {
 
-        // 'actor' is the person performing the action
-        User actor = (User) authentication.getPrincipal();
-
-        User updatedUser = service.secureUpdate(actor, id, updates);
-        return ResponseEntity.ok(updatedUser);
-    }
 
     @PostMapping("/{id}/modify")
     @PreAuthorize("hasAuthority('can_modify_users')")

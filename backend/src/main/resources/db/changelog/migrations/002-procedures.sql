@@ -20,6 +20,43 @@ BEGIN
 END;
 $$;
 
+INSERT INTO app_user
+
+-- PROCEDURE: Adds a user to a group with a specific role and logs it
+CREATE OR REPLACE PROCEDURE p_add_group_member(
+    p_user_id UUID,
+    p_group_id UUID,
+    p_role_name VARCHAR
+)
+    LANGUAGE plpgsql AS $$
+DECLARE
+    v_role_id UUID;
+BEGIN
+    -- 1. Find the role ID based on the name
+    SELECT id INTO v_role_id FROM group_roles WHERE name = p_role_name;
+
+    -- 2. Insert or Update the membership
+    INSERT INTO group_members (group_id, user_id, group_role_id)
+    VALUES (p_group_id, p_user_id, v_role_id)
+    ON CONFLICT (group_id, user_id) DO UPDATE SET group_role_id = v_role_id;
+
+    -- 3. Automatically log the action
+    INSERT INTO group_logs (group_id, message, severity)
+    VALUES (p_group_id, 'User ' || p_user_id || ' assigned role ' || p_role_name, 'INFO');
+END;
+$$;
+
+
+CREATE OR REPLACE FUNCTION fn_get_user_by_email(p_email TEXT)
+    RETURNS SETOF app_user AS $$ -- This tells Postgres to return the table's structure
+BEGIN
+    RETURN QUERY
+        SELECT * FROM app_user
+        WHERE email = p_email
+        LIMIT 1;
+END;
+$$ LANGUAGE plpgsql;
+
 
 CREATE OR REPLACE PROCEDURE sp_global_logout(
     p_user_id UUID,

@@ -9,7 +9,6 @@ public record LoginResponse(
         long expiresAt,
         String username,
         String email,
-        String role,
         boolean canCheckOtherUsers,
         String message
 ) {}

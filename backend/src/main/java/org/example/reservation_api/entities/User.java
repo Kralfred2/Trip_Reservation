@@ -1,38 +1,34 @@
 package org.example.reservation_api.entities;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 
-@RequiredArgsConstructor
-@Setter
-@Getter
-@Entity
+@Data
+@Entity // CRITICAL: Tells JPA this is a managed entity
 @Table(name = "app_user")
+@EqualsAndHashCode(callSuper = true)
 public class User extends BaseEntity {
+    // REMOVED: private UUID id; (Inherited from BaseEntity)
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "role")
-    private UserRole role;
-
-    @Column(unique = true, nullable = false)
     private String username;
-
-    @Column(unique = true, nullable = false)
     private String email;
-
-    @Column(name = "password", nullable = false)
     private String password;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_roles_mapping", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "role_name")
+    private Set<String> usersRoles = new HashSet<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    public boolean isAdmin() {
+        return usersRoles.contains("ROLE_ADMIN");
+    }
+    // If UserPermission is another entity, use @OneToMany.
+    // If it's a simple DTO, you might need @Transient or @ElementCollection.
+    @Transient
     private Set<UserPermission> permissions = new HashSet<>();
-
-
 }

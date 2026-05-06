@@ -1,8 +1,15 @@
 package org.example.reservation_api.entities;
 
-public enum UserRole {
-    ROLE_USER,
-    ROLE_ADMIN,
-    ROLE_MODERATOR,
-    ROLE_GUEST
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.Set;
+import java.util.UUID;
+
+
+@Getter
+@Setter
+public class UserRole {
+    private String name;
+    private Set<UUID> rolePermissions;
 }

@@ -31,11 +31,11 @@ public class MyCustomBouncer {
     public LoginResponse tryLogin(LoginRequest credentials) {
 
         User user = userRepository.findByEmail(credentials.getEmail())
-                .orElseThrow(() -> new BadCredentialsException("Invalid email or password"));
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-
+        // 2. Java handles the high-security BCrypt check
         if (!passwordEncoder.matches(credentials.getPassword(), user.getPassword())) {
-            throw new BadCredentialsException("Invalid email or password");
+            throw new RuntimeException("Invalid password");
         }
         boolean canCheckOtherUsers = userRepository.findGlobalCapabilities(user.getId())
                 .map(GlobalCapabilityProjection::getCanViewUserList) // Extract the boolean here
@@ -48,7 +48,6 @@ public class MyCustomBouncer {
                 3600,
                 user.getUsername(),
                 user.getEmail(),
-                user.getRole().toString(),
                 canCheckOtherUsers,
                 "Login successful"
         );
@@ -58,10 +57,10 @@ public class MyCustomBouncer {
         Token responceToken = jwtService.isTokenValid(tokenString);
 
         if (responceToken.getOwnerId() == null) {
-            return new LoginResponse(null, 0, null, null,null,false,  responceToken.getMessage());
+            return new LoginResponse(null, 0, null, null,false,  responceToken.getMessage());
         } else {
             // Use findById safely
-            return userRepository.findById(responceToken.getOwnerId())
+            return userRepository.dbFindById(responceToken.getOwnerId())
                     .map(user -> {
                         long expiresInSeconds = 3600;
                         String jwt = jwtService.generateTimedToken(user, expiresInSeconds);
@@ -73,12 +72,11 @@ public class MyCustomBouncer {
                                 3600,
                                 user.getUsername(),
                                 user.getEmail(),
-                                user.getRole().toString(),
                                 canCheckOtherUsers,
                                 "Login successful"
                         );
                     })
-                    .orElseGet(() -> new LoginResponse(null, 0, null, null,null,false, "User no longer exists"));
+                    .orElseGet(() -> new LoginResponse(null, 0, null, null,false, "User no longer exists"));
         }
     }
 }

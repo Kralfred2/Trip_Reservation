@@ -1,21 +1,18 @@
 package org.example.reservation_api.entities;
 
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
-
-import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import java.util.UUID;
 
+@Getter
+@Setter
 @MappedSuperclass
 public abstract class BaseEntity {
-
-    @Id
-    @GeneratedValue
+    @Id // Required by JPA
+    @GeneratedValue(strategy = GenerationType.AUTO) // Automatically handles ID generation
     private UUID id;
-
-    // Getters and Setters
-    public UUID getId() { return id; }
-    public void setId(UUID id) { this.id = id; }
-
 }
